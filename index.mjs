@@ -35,9 +35,6 @@ app.get('/', cors(), async (req, res) => {
     res.send('Hello world');
 })
 
-export const load = functions.https.onRequest(app);
-
-// Local development
-// const PORT = process.env.PORT || 5000;
-// app.listen(PORT);
-// console.log("Server is running! " + PORT);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT);
+console.log("Server is running! " + PORT);
