@@ -38,3 +38,5 @@ app.get('/', cors(), async (req, res) => {
 const PORT = process.env.PORT || 4000;
 app.listen(PORT);
 console.log("Server is running! " + PORT);
+
+export default app;
