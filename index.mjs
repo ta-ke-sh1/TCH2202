@@ -29,13 +29,12 @@ app.use('/user', userController);
 
 app.use('/auth', authController)
 
-
 app.get('/', cors(), async (req, res) => {
     console.log('Hello world')
-    res.send('Hello world');
+    res.send(req.headers);
 })
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT);
 console.log("Server is running! " + PORT);
 

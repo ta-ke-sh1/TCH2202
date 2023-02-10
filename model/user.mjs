@@ -1,4 +1,4 @@
-class User {
+export class User {
     constructor (id, department_id, username, password, fullName, dob, role, phone, status) {
         this.id = id;
         this.department_id = department_id;
@@ -9,6 +9,10 @@ class User {
         this.role = role;
         this.phone = phone;
         this.status = status;
+    }
+
+    static fromJson(json) {
+        return new User(json.id, json.department_id, json.username, json.password, json.fullName, json.dob, json.role, json.phone, json.status);
     }
 
     toJson() {
