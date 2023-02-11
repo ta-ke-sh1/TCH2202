@@ -1,5 +1,15 @@
 export class Idea {
-    constructor (id, writer_id, approver_id, file, post_date, expiration_date, visit_count, stat, is_anonymous) {
+    constructor(
+        id,
+        writer_id,
+        approver_id,
+        file,
+        post_date,
+        expiration_date,
+        visit_count,
+        stat,
+        is_anonymous
+    ) {
         this.id = id;
         this.writer_id = writer_id;
         this.approver_id = approver_id;
@@ -11,9 +21,9 @@ export class Idea {
         this.is_anonymous = is_anonymous;
     }
 
-    static fromJson(json) {
+    static fromJson(json, docId) {
         return new Idea(
-            json.id,
+            docId,
             json.writer_id,
             json.approver_id,
             json.file,
@@ -27,7 +37,6 @@ export class Idea {
 
     toJson() {
         return {
-            id: this.id,
             writer_id: this.writer_id,
             approver_id: this.approver_id,
             file: this.file,
@@ -36,13 +45,8 @@ export class Idea {
             visit_count: this.visit_count,
             stat: this.stat,
             is_anonymous: this.is_anonymous,
-        }
+        };
     }
-
 }
 
-const idea_status = [
-    'Open',
-    'Closed',
-    'Expired',
-]
+const idea_status = ["Open", "Closed", "Expired"];

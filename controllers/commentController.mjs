@@ -6,45 +6,45 @@ import {
     deleteDocument,
     updateDocument,
 } from "../repository/firebaseHelper.mjs";
-import { User } from "../model/User.mjs";
+import { Comment } from "../model/Comment.mjs";
 import * as Constants from "../repository/constants.mjs";
 
 const router = express.Router();
-const collection = Constants.UserRepository;
+const collection = Constants.CommentRepository;
 
 router.get("/", async (req, res) => {
-    const Users = [];
+    const Comments = [];
     var snapshots = await fetchAllDocuments(collection);
-    console.log("User Page");
+    console.log("Comment Page");
     snapshots.forEach((snapshot) => {
-        Users.push(User.fromJson(snapshot.data(), snapshot.id));
+        Comments.push(Comment.fromJson(snapshot.data(), snapshot.id));
     });
-    res.send(Users);
+    res.send(Comments);
 });
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
     var snapshot = await fetchDocumentById(collection, id);
-    var dept = new User();
+    var dept = new Comment();
 });
 
 router.post("/add", async (req, res) => {
-    var User = new User(null, req.body.name, 0);
-    console.log(User);
-    await addDocument(collection, User);
-    console.log("New User Added");
-    console.log("User added, ID: " + req.body.id);
+    var Comment = new Comment(null, req.body.name, 0);
+    console.log(Comment);
+    await addDocument(collection, Comment);
+    console.log("New Comment Added");
+    console.log("Comment added, ID: " + req.body.id);
 });
 
 router.post("/edit", async (req, res) => {
-    var User = new User(req.body.id, req.body.name, req.body.emp_count);
-    await updateDocument(collection, User.id, User);
-    console.log("User updated, ID: " + req.body.id);
+    var Comment = new Comment(req.body.id, req.body.name, req.body.emp_count);
+    await updateDocument(collection, Comment.id, Comment);
+    console.log("Comment updated, ID: " + req.body.id);
 });
 
 router.get("/delete", async (req, res) => {
     await deleteDocument(collection, req.body.id);
-    console.log("User deleted, ID: " + req.body.id);
+    console.log("Comment deleted, ID: " + req.body.id);
 });
 
 export default router;
