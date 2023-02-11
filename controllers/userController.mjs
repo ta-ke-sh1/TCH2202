@@ -13,32 +13,51 @@ const router = express.Router();
 const collection = Constants.UserRepository;
 
 router.get("/", async (req, res) => {
-    const Users = [];
+    const users = [];
     var snapshots = await fetchAllDocuments(collection);
     console.log("User Page");
     snapshots.forEach((snapshot) => {
-        Users.push(User.fromJson(snapshot.data(), snapshot.id));
+        users.push(User.fromJson(snapshot.data(), snapshot.id));
     });
-    res.send(Users);
+    res.send(users);
 });
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
     var snapshot = await fetchDocumentById(collection, id);
-    var dept = new User();
+    var dept = User.fromJson(snapshot.data(), snapshot.id);
+    res.send(dept);
 });
 
 router.post("/add", async (req, res) => {
-    var User = new User(null, req.body.name, 0);
-    console.log(User);
-    await addDocument(collection, User);
-    console.log("New User Added");
+    var user = new User(
+        null,
+        req.body.department_id,
+        req.body.username,
+        req.body.password,
+        req.body.fullName,
+        req.body.dob,
+        req.body.role,
+        req.body.phone,
+        req.body.stat
+    );
+    await addDocument(collection, user);
     console.log("User added, ID: " + req.body.id);
 });
 
 router.post("/edit", async (req, res) => {
-    var User = new User(req.body.id, req.body.name, req.body.emp_count);
-    await updateDocument(collection, User.id, User);
+    var user = new User(
+        req.body.id,
+        req.body.department_id,
+        req.body.username,
+        req.body.password,
+        req.body.fullName,
+        req.body.dob,
+        req.body.role,
+        req.body.phone,
+        req.body.stat
+    );
+    await updateDocument(collection, user.id, user);
     console.log("User updated, ID: " + req.body.id);
 });
 

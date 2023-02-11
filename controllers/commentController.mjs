@@ -13,32 +13,48 @@ const router = express.Router();
 const collection = Constants.CommentRepository;
 
 router.get("/", async (req, res) => {
-    const Comments = [];
+    const comments = [];
     var snapshots = await fetchAllDocuments(collection);
     console.log("Comment Page");
     snapshots.forEach((snapshot) => {
-        Comments.push(Comment.fromJson(snapshot.data(), snapshot.id));
+        comments.push(Comment.fromJson(snapshot.data(), snapshot.id));
     });
-    res.send(Comments);
+    res.send(comments);
 });
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
     var snapshot = await fetchDocumentById(collection, id);
-    var dept = new Comment();
+    var dept = Comment.fromJson(snapshot.data(), snapshot.id);
+    res.send(dept);
 });
 
 router.post("/add", async (req, res) => {
-    var Comment = new Comment(null, req.body.name, 0);
+    var comment = new Comment(
+        null,
+        req.body.idea_id,
+        req.body.user_id,
+        req.body.content,
+        req.body.date,
+        req.body.isAnonymous,
+        req.body.react
+    );
     console.log(Comment);
     await addDocument(collection, Comment);
-    console.log("New Comment Added");
     console.log("Comment added, ID: " + req.body.id);
 });
 
 router.post("/edit", async (req, res) => {
-    var Comment = new Comment(req.body.id, req.body.name, req.body.emp_count);
-    await updateDocument(collection, Comment.id, Comment);
+    var comment = new Comment(
+        req.body.id,
+        req.body.idea_id,
+        req.body.user_id,
+        req.body.content,
+        req.body.date,
+        req.body.isAnonymous,
+        req.body.react
+    );
+    await updateDocument(collection, Comment.id, comment);
     console.log("Comment updated, ID: " + req.body.id);
 });
 

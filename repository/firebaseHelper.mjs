@@ -6,6 +6,8 @@ import {
     doc,
     deleteDoc,
     collection,
+    getDoc,
+    where,
 } from "firebase/firestore";
 import * as constants from "./constants.mjs";
 
@@ -22,11 +24,25 @@ const fetchAllDocuments = async (document) => {
     return Documents;
 };
 
+const fetchAllMatchingDocuments = async (document, criteria, keyword) => {
+    const documents = [];
+    const querySnapshot = await getDocs(
+        collection(db, document),
+        where(criteria, "==", keyword)
+    );
+    querySnapshot.forEach((doc) => {
+        console.log(doc.id);
+        documents.push(doc);
+    });
+    return documents;
+};
+
 const fetchDocumentById = async (collection, id) => {
     const docRef = doc(db, collection, id);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
+        console.log("fetched");
         return docSnap;
     } else {
         console.log("No such document!");
@@ -59,6 +75,7 @@ const updateDocument = async (collection, id, update_object) => {
 
 export {
     fetchAllDocuments,
+    fetchAllMatchingDocuments,
     fetchDocumentById,
     addDocument,
     deleteDocument,

@@ -1,11 +1,11 @@
 export class Comment {
-    constructor(id, idea_id, user_id, content, date, stat, react) {
+    constructor(id, idea_id, user_id, content, date, isAnonymous, react) {
         this.id = id;
         this.idea_id = idea_id;
         this.user_id = user_id;
         this.content = content;
         this.date = date;
-        this.stat = stat;
+        this.isAnonymous = isAnonymous;
         this.react = react;
     }
 
@@ -16,7 +16,7 @@ export class Comment {
             json.user_id,
             json.content,
             json.date,
-            json.stat,
+            json.isAnonymous,
             json.react
         );
     }
@@ -27,7 +27,7 @@ export class Comment {
             user_id: this.user_id,
             content: this.content,
             date: this.date,
-            stat: this.stat,
+            isAnonymous: this.isAnonymous,
             react: this.react,
         };
     }

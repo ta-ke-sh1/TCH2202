@@ -22,10 +22,11 @@ router.get("/", async (req, res) => {
     res.send(departments);
 });
 
-router.get("/", async (req, res) => {
-    const id = req.query.id;
+router.get("/id", async (req, res) => {
+    const id = req.query.param;
     var snapshot = await fetchDocumentById(collection, id);
-    var dept = new Department();
+    var dept = Department.fromJson(snapshot.data(), snapshot.id);
+    res.send(dept);
 });
 
 router.post("/add", async (req, res) => {

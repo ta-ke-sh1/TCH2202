@@ -8,7 +8,7 @@ export class User {
         dob,
         role,
         phone,
-        status
+        stat
     ) {
         this.id = id;
         this.department_id = department_id;
@@ -18,7 +18,7 @@ export class User {
         this.dob = dob;
         this.role = role;
         this.phone = phone;
-        this.status = status;
+        this.stat = stat;
     }
 
     static fromJson(json, docId) {
@@ -31,7 +31,7 @@ export class User {
             json.dob,
             json.role,
             json.phone,
-            json.status
+            json.stat
         );
     }
 
@@ -44,7 +44,7 @@ export class User {
             dob: this.dob,
             role: this.role,
             phone: this.phone,
-            status: this.status,
+            stat: this.status,
         };
     }
 }
