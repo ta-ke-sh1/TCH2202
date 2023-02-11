@@ -5,6 +5,7 @@
   "license": "ISC",
   "description": "Cloud Functions for Firebase",
   "scripts": {
+    "build": "npm install",
     "start": "node index.mjs"
   },
   "engines": {

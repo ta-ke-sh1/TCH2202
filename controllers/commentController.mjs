@@ -6,7 +6,7 @@ import {
     deleteDocument,
     updateDocument,
 } from "../repository/firebaseHelper.mjs";
-import { Comment } from "../model/Comment.mjs";
+import { Comment } from "../model/comment.mjs";
 import * as Constants from "../repository/constants.mjs";
 
 const router = express.Router();
