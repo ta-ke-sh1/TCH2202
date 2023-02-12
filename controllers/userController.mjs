@@ -5,9 +5,10 @@ import {
     addDocument,
     deleteDocument,
     updateDocument,
-} from "../repository/firebaseHelper.mjs";
+} from "../service/firebaseHelper.mjs";
+import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
-import * as Constants from "../repository/constants.mjs";
+import * as Constants from "../service/constants.mjs";
 
 const router = express.Router();
 const collection = Constants.UserRepository;
@@ -31,7 +32,6 @@ router.get("/", async (req, res) => {
 
 router.post("/add", async (req, res) => {
     var user = new User(
-        null,
         req.body.department_id,
         req.body.username,
         req.body.password,
@@ -41,7 +41,7 @@ router.post("/add", async (req, res) => {
         req.body.phone,
         req.body.stat
     );
-    await addDocument(collection, user);
+    await register(collection, user);
     console.log("User added, ID: " + req.body.id);
 });
 

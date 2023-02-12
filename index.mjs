@@ -1,11 +1,10 @@
-import functions from "firebase-functions";
 import express, { json } from "express";
 import cors from "cors";
 import departmentController from "./controllers/departmentController.mjs";
 import ideaController from "./controllers/ideaController.mjs";
 import userController from "./controllers/userController.mjs";
-import authController from "./controllers/authController.mjs";
 import commentController from "./controllers/commentController.mjs";
+import { authorize } from "./service/tokenAuth.mjs";
 
 const app = express();
 
@@ -30,9 +29,14 @@ app.use("/idea", ideaController);
 
 app.use("/user", userController);
 
-app.use("/auth", authController);
-
 app.use("/comment", commentController);
+
+app.post("/login", async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+    var respond = await authorize(username, password);
+    res.send(respond);
+});
 
 app.get("/", cors(), async (req, res) => {
     console.log("Hello world");

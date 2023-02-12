@@ -1,6 +1,5 @@
 export class User {
     constructor(
-        id,
         department_id,
         username,
         password,
@@ -8,9 +7,9 @@ export class User {
         dob,
         role,
         phone,
-        stat
+        stat,
+        avatar
     ) {
-        this.id = id;
         this.department_id = department_id;
         this.username = username;
         this.password = password;
@@ -19,11 +18,11 @@ export class User {
         this.role = role;
         this.phone = phone;
         this.stat = stat;
+        this.avatar = avatar;
     }
 
     static fromJson(json, docId) {
         return new User(
-            docId,
             json.department_id,
             json.username,
             json.password,
@@ -31,20 +30,21 @@ export class User {
             json.dob,
             json.role,
             json.phone,
-            json.stat
+            json.stat,
+            json.avatar
         );
     }
 
     toJson() {
         return {
             department_id: this.department_id,
-            username: this.username,
             password: this.password,
             fullName: this.fullName,
             dob: this.dob,
             role: this.role,
             phone: this.phone,
             stat: this.status,
+            avatar: this.avatar,
         };
     }
 }

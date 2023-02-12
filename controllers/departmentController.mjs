@@ -5,9 +5,9 @@ import {
     addDocument,
     deleteDocument,
     updateDocument,
-} from "../repository/firebaseHelper.mjs";
+} from "../service/firebaseHelper.mjs";
 import { Department } from "../model/department.mjs";
-import * as Constants from "../repository/constants.mjs";
+import * as Constants from "../service/constants.mjs";
 
 const router = express.Router();
 const collection = Constants.DepartmentRepository;
@@ -22,8 +22,8 @@ router.get("/", async (req, res) => {
     res.send(departments);
 });
 
-router.get("/id", async (req, res) => {
-    const id = req.query.param;
+router.get("/get/", async (req, res) => {
+    const id = req.query.id;
     var snapshot = await fetchDocumentById(collection, id);
     var dept = Department.fromJson(snapshot.data(), snapshot.id);
     res.send(dept);
