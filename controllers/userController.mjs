@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
     res.send(users);
 });
 
-router.get("/", async (req, res) => {
+router.get("/:id", async (req, res) => {
     const id = req.query.id;
     var snapshot = await fetchDocumentById(collection, id);
     var dept = User.fromJson(snapshot.data(), snapshot.id);

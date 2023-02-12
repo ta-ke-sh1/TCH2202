@@ -15,13 +15,12 @@ const app = initializeApp(constants.firebaseConfig);
 const db = getFirestore(app);
 
 const fetchAllDocuments = async (document) => {
-    const Documents = [];
+    const documents = [];
     const querySnapshot = await getDocs(collection(db, document));
     querySnapshot.forEach((doc) => {
-        console.log(doc.id);
-        Documents.push(doc);
+        documents.push(doc);
     });
-    return Documents;
+    return documents;
 };
 
 const fetchAllMatchingDocuments = async (document, criteria, keyword) => {
@@ -31,7 +30,6 @@ const fetchAllMatchingDocuments = async (document, criteria, keyword) => {
         where(criteria, "==", keyword)
     );
     querySnapshot.forEach((doc) => {
-        console.log(doc.id);
         documents.push(doc);
     });
     return documents;

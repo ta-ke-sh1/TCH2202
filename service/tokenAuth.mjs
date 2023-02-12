@@ -16,6 +16,31 @@ const { sign, verify } = jwt;
 const app = initializeApp(constants.firebaseConfig);
 const db = getFirestore(app);
 
+
+function containsRole(role) {
+    return function middle(req, res, next) {
+        var token = req.get('Authorization')
+        if (typeof (token) === 'undefined') {
+            res.status(403).send({ success: false, message: "No Token Provided." })
+            return;
+        }
+
+        if (!token.startsWith('Bearer ')) {
+            res.status(403).send({ success: false, message: "No Token Provided." })
+            return;
+        }
+        var decoded = jwt.verify(token.substring(7, token.length), process.env.JWT_SECRET);
+
+        if (!decoded.role.includes(role)) {
+            res.status(403).send({ success: false, message: "Unauthorized role." })
+        } else {
+            var decoded = jwt.verify(token.substring(7, token.length), process.env.JWT_SECRET);
+            next();
+        }
+    }
+}
+
+
 const register = async (object) => {
     var isExist = await isExists(username);
     if (isExist !== false) {
@@ -75,4 +100,4 @@ const isExists = async (username) => {
     }
 };
 
-export { authorize, register };
+export { authorize, register, containsRole };

@@ -1,4 +1,4 @@
-const UserRepostiory = "User";
+const UserRepository = "User";
 const CategoryRepository = "Category";
 const DepartmentRepository = "Department";
 const IdeaRepository = "Idea";
@@ -16,7 +16,7 @@ const firebaseConfig = {
 export {
     DepartmentRepository,
     CategoryRepository,
-    UserRepostiory,
+    UserRepository,
     IdeaRepository,
     CommentRepository,
     firebaseConfig,

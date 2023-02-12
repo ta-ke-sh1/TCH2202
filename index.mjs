@@ -4,7 +4,8 @@ import departmentController from "./controllers/departmentController.mjs";
 import ideaController from "./controllers/ideaController.mjs";
 import userController from "./controllers/userController.mjs";
 import commentController from "./controllers/commentController.mjs";
-import { authorize } from "./service/tokenAuth.mjs";
+import { authorize, containsRole } from "./service/tokenAuth.mjs";
+import jwt from "jsonwebtoken";
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use(
     })
 );
 
+
+
 app.use("/department", departmentController);
 
 app.use("/idea", ideaController);
@@ -38,9 +41,9 @@ app.post("/login", async (req, res) => {
     res.send(respond);
 });
 
-app.get("/", cors(), async (req, res) => {
+app.get("/", cors(), containsRole('Admin'), async (req, res) => {
     console.log("Hello world");
-    res.send(req.headers);
+    res.status(200).send({ success: true, message: "Authorized." })
 });
 
 const PORT = process.env.PORT || 5000;
