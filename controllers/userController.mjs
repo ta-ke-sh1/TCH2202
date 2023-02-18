@@ -63,6 +63,21 @@ function getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+router.get('/clearDatabase', async (req, res) => {
+    var users = await fetchAllDocuments(collectionRef);
+    users = users.filter(x => {
+        return x.id !== 'admin';
+    })
+
+    var batch = writeBatch(db);
+    users.forEach((user) => {
+        const docRef = doc(db, collectionRef, user.id);
+        batch.delete(docRef);
+    })
+    await batch.commit()
+    res.status(200).send({ success: true, code: 200, message: "Deleted all mock users" })
+})
+
 router.get('/addMock', async (req, res) => {
     const users = [];
     for (let i = 0; i < 20; i++) {
