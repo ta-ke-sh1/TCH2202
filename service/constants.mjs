@@ -4,6 +4,9 @@ const DepartmentRepository = "Department";
 const IdeaRepository = "Idea";
 const CommentRepository = "Comment";
 
+const emailHost = "trunght.yrc@gmail.com";
+const emailPassword = "gqpukqyqnlclrjqs";
+
 const firebaseConfig = {
     apiKey: "AIzaSyBuwAqQofc1tOqP7JezMCYMewdq8YF-ZQM",
     authDomain: "tch2202-a782d.firebaseapp.com",
@@ -14,6 +17,8 @@ const firebaseConfig = {
 };
 
 export {
+    emailHost,
+    emailPassword,
     DepartmentRepository,
     CategoryRepository,
     UserRepository,

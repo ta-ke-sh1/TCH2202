@@ -1,5 +1,5 @@
 export class User {
-    constructor (
+    constructor(
         department_id,
         username,
         password,
@@ -8,7 +8,8 @@ export class User {
         role,
         phone,
         stat,
-        avatar
+        avatar,
+        email
     ) {
         this.department_id = department_id;
         this.username = username;
@@ -19,6 +20,7 @@ export class User {
         this.phone = phone;
         this.stat = stat;
         this.avatar = avatar;
+        this.email = email;
     }
 
     static fromJson(json, docId) {
@@ -31,7 +33,8 @@ export class User {
             json.role,
             json.phone,
             json.stat,
-            json.avatar
+            json.avatar,
+            json.email
         );
     }
 
@@ -45,6 +48,7 @@ export class User {
             phone: this.phone,
             stat: this.stat,
             avatar: this.avatar,
+            email: this.email,
         };
     }
 }

@@ -16,37 +16,50 @@ const { sign, verify } = jwt;
 const app = initializeApp(constants.firebaseConfig);
 const db = getFirestore(app);
 
-
 function containsRole(role) {
     return function middle(req, res, next) {
-        var token = req.get('Authorization')
-        if (typeof (token) === 'undefined') {
-            res.status(403).send({ success: false, code: 300, message: "No Token Provided." })
+        var token = req.get("Authorization");
+        if (typeof token === "undefined") {
+            res.status(403).send({
+                success: false,
+                message: "No Token Provided.",
+            });
             return;
         }
 
-        if (!token.startsWith('Bearer ')) {
-            res.status(403).send({ success: false, code: 300, message: "No Token Provided." })
+        if (!token.startsWith("Bearer ")) {
+            res.status(403).send({
+                success: false,
+                message: "No Token Provided.",
+            });
             return;
         }
 
         try {
-            var decoded = jwt.verify(token.substring(7, token.length), process.env.JWT_SECRET);
+            var decoded = jwt.verify(
+                token.substring(7, token.length),
+                process.env.JWT_SECRET
+            );
         } catch (err) {
-            res.status(403).send({ success: false, code: 401, message: err })
+            res.status(501).send({ success: false, message: err });
             return;
         }
 
         if (!decoded.role.includes(role)) {
-            res.status(403).send({ success: false, code: 501, message: "Unauthorized role." })
+            res.status(502).send({
+                success: false,
+                message: "You are unauthorized for this action!",
+            });
         } else {
-            var decoded = jwt.verify(token.substring(7, token.length), process.env.JWT_SECRET);
+            var decoded = jwt.verify(
+                token.substring(7, token.length),
+                process.env.JWT_SECRET
+            );
             req.decodedToken = decoded;
             next();
         }
-    }
+    };
 }
-
 
 const register = async (object) => {
     var isExist = await isExists(username);
