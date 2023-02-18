@@ -22,6 +22,10 @@ router.get("/", async (req, res) => {
     res.send(Ideas);
 });
 
+router.post('/approve', async (req, res) => {
+    const id = req.body.post_id;
+})
+
 router.get("/idea", async (req, res) => {
     const id = req.query.id;
     var snapshot = await fetchDocumentById(collection, id);

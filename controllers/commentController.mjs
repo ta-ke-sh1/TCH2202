@@ -39,8 +39,8 @@ router.post("/add", async (req, res) => {
         req.body.isAnonymous,
         req.body.react
     );
-    console.log(Comment);
-    await addDocument(collection, Comment);
+    console.log(comment);
+    await addDocument(collection, comment);
     console.log("Comment added, ID: " + req.body.id);
 });
 
@@ -54,7 +54,7 @@ router.post("/edit", async (req, res) => {
         req.body.isAnonymous,
         req.body.react
     );
-    await updateDocument(collection, Comment.id, comment);
+    await updateDocument(collection, comment.id, comment);
     console.log("Comment updated, ID: " + req.body.id);
 });
 

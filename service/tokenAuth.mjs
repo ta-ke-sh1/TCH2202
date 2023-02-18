@@ -21,20 +21,27 @@ function containsRole(role) {
     return function middle(req, res, next) {
         var token = req.get('Authorization')
         if (typeof (token) === 'undefined') {
-            res.status(403).send({ success: false, message: "No Token Provided." })
+            res.status(403).send({ success: false, code: 300, message: "No Token Provided." })
             return;
         }
 
         if (!token.startsWith('Bearer ')) {
-            res.status(403).send({ success: false, message: "No Token Provided." })
+            res.status(403).send({ success: false, code: 300, message: "No Token Provided." })
             return;
         }
-        var decoded = jwt.verify(token.substring(7, token.length), process.env.JWT_SECRET);
+
+        try {
+            var decoded = jwt.verify(token.substring(7, token.length), process.env.JWT_SECRET);
+        } catch (err) {
+            res.status(403).send({ success: false, code: 401, message: err })
+            return;
+        }
 
         if (!decoded.role.includes(role)) {
-            res.status(403).send({ success: false, message: "Unauthorized role." })
+            res.status(403).send({ success: false, code: 501, message: "Unauthorized role." })
         } else {
             var decoded = jwt.verify(token.substring(7, token.length), process.env.JWT_SECRET);
+            req.decodedToken = decoded;
             next();
         }
     }
@@ -91,7 +98,7 @@ const authorize = async (username, password) => {
 };
 
 const isExists = async (username) => {
-    const docRef = doc(db, constants.UserRepostiory, username);
+    const docRef = doc(db, constants.UserRepository, username);
     const querySnapshot = await getDoc(docRef);
     if (querySnapshot.exists()) {
         return querySnapshot;

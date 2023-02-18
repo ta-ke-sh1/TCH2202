@@ -5,7 +5,6 @@ import ideaController from "./controllers/ideaController.mjs";
 import userController from "./controllers/userController.mjs";
 import commentController from "./controllers/commentController.mjs";
 import { authorize, containsRole } from "./service/tokenAuth.mjs";
-import jwt from "jsonwebtoken";
 
 const app = express();
 
@@ -24,8 +23,6 @@ app.use(
     })
 );
 
-
-
 app.use("/department", departmentController);
 
 app.use("/idea", ideaController);
@@ -42,8 +39,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/", cors(), containsRole('Admin'), async (req, res) => {
-    console.log("Hello world");
-    res.status(200).send({ success: true, message: "Authorized." })
+    res.status(200).send({ success: true, code: 200, message: req.decodedToken })
 });
 
 const PORT = process.env.PORT || 5000;

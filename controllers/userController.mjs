@@ -1,4 +1,5 @@
 import express from "express";
+import { initializeApp } from "firebase/app";
 import {
     fetchAllDocuments,
     fetchDocumentById,
@@ -9,13 +10,18 @@ import {
 import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
 import * as Constants from "../service/constants.mjs";
+import { uniqueNamesGenerator, names } from 'unique-names-generator';
+import { writeBatch, doc, getFirestore, collection, runTransaction } from "firebase/firestore";
 
 const router = express.Router();
-const collection = Constants.UserRepository;
+const collectionRef = Constants.UserRepository;
+
+const app = initializeApp(Constants.firebaseConfig);
+const db = getFirestore(app);
 
 router.get("/", async (req, res) => {
     const users = [];
-    var snapshots = await fetchAllDocuments(collection);
+    var snapshots = await fetchAllDocuments(collectionRef);
     console.log("User Page");
     snapshots.forEach((snapshot) => {
         users.push(User.fromJson(snapshot.data(), snapshot.id));
@@ -23,9 +29,9 @@ router.get("/", async (req, res) => {
     res.send(users);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/get/", async (req, res) => {
     const id = req.query.id;
-    var snapshot = await fetchDocumentById(collection, id);
+    var snapshot = await fetchDocumentById(collectionRef, id);
     var dept = User.fromJson(snapshot.data(), snapshot.id);
     res.send(dept);
 });
@@ -41,8 +47,54 @@ router.post("/add", async (req, res) => {
         req.body.phone,
         req.body.stat
     );
-    await register(collection, user);
+    await register(collectionRef, user);
     console.log("User added, ID: " + req.body.id);
+});
+
+const roles = {
+    1: '1D17R3ozi5G8Ih12H4CV',
+    2: 'HrBpfqyOOPVomC6FuyPM',
+    3: 'TnKVhc7Euaskx4W9n3sW',
+    4: 'ZbxTmrJKbT16HOSYPbN2',
+    5: 's4sXB2J5q6Zx1f4qIIwB',
+}
+
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+router.get('/addMock', async (req, res) => {
+    const users = [];
+    for (let i = 0; i < 20; i++) {
+        var name = uniqueNamesGenerator({
+            dictionaries: [names],
+        }) + uniqueNamesGenerator({
+            dictionaries: [names],
+        });
+        var user = new User(
+            roles[getRndInteger(1, 5)],
+            name.toLowerCase(),
+            '123456',
+            name,
+            getRndInteger(1990, 2004) + '/' + getRndInteger(1, 12) + "/" + getRndInteger(1, 30),
+            ['Staff'],
+            '+840' + getRndInteger(30, 99) + getRndInteger(100000, 999999),
+            'Activated',
+            "/avatar/" + name.toLowerCase()
+        );
+        users.push(user);
+    }
+
+    var batch = writeBatch(db);
+
+    users.forEach((user) => {
+        const docRef = doc(db, collectionRef, user.username);
+        console.log(user.toJson())
+        batch.set(docRef, user.toJson());
+    })
+
+    await batch.commit()
+    res.status(200).send({ success: true, code: 200, message: "20 new users added" })
 });
 
 router.post("/edit", async (req, res) => {
@@ -57,12 +109,12 @@ router.post("/edit", async (req, res) => {
         req.body.phone,
         req.body.stat
     );
-    await updateDocument(collection, user.id, user);
+    await updateDocument(collectionRef, user.id, user);
     console.log("User updated, ID: " + req.body.id);
 });
 
 router.get("/delete", async (req, res) => {
-    await deleteDocument(collection, req.body.id);
+    await deleteDocument(collectionRef, req.body.id);
     console.log("User deleted, ID: " + req.body.id);
 });
 

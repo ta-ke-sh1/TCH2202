@@ -1,5 +1,5 @@
 export class User {
-    constructor(
+    constructor (
         department_id,
         username,
         password,
@@ -43,7 +43,7 @@ export class User {
             dob: this.dob,
             role: this.role,
             phone: this.phone,
-            stat: this.status,
+            stat: this.stat,
             avatar: this.avatar,
         };
     }
