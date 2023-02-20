@@ -83,12 +83,12 @@ router.get('/addMock', async (req, res) => {
     for (let i = 0; i < 20; i++) {
         var name = uniqueNamesGenerator({
             dictionaries: [names],
-        }) + uniqueNamesGenerator({
+        }) + ' ' + uniqueNamesGenerator({
             dictionaries: [names],
         });
         var user = new User(
             roles[getRndInteger(1, 5)],
-            name.toLowerCase(),
+            name.replace(' ', '').toLowerCase(),
             '123456',
             name,
             getRndInteger(1990, 2004) + '/' + getRndInteger(1, 12) + "/" + getRndInteger(1, 30),
