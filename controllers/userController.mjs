@@ -3,15 +3,14 @@ import { initializeApp } from "firebase/app";
 import {
     fetchAllDocuments,
     fetchDocumentById,
-    addDocument,
     deleteDocument,
     updateDocument,
 } from "../service/firebaseHelper.mjs";
 import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
 import * as Constants from "../service/constants.mjs";
-import { uniqueNamesGenerator, names } from 'unique-names-generator';
-import { writeBatch, doc, getFirestore, collection, runTransaction } from "firebase/firestore";
+import { uniqueNamesGenerator, names } from "unique-names-generator";
+import { writeBatch, doc, getFirestore } from "firebase/firestore";
 
 const router = express.Router();
 const collectionRef = Constants.UserRepository;
@@ -45,57 +44,65 @@ router.post("/add", async (req, res) => {
         req.body.dob,
         req.body.role,
         req.body.phone,
-        req.body.stat
+        req.body.stat,
+        req.body.email
     );
     await register(collectionRef, user);
     console.log("User added, ID: " + req.body.id);
 });
 
-const roles = {
-    1: '1D17R3ozi5G8Ih12H4CV',
-    2: 'HrBpfqyOOPVomC6FuyPM',
-    3: 'TnKVhc7Euaskx4W9n3sW',
-    4: 'ZbxTmrJKbT16HOSYPbN2',
-    5: 's4sXB2J5q6Zx1f4qIIwB',
-}
-
 function getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-router.get('/clearDatabase', async (req, res) => {
+router.get("/clearDatabase", async (req, res) => {
     var users = await fetchAllDocuments(collectionRef);
-    users = users.filter(x => {
-        return x.id !== 'admin';
-    })
+    users = users.filter((x) => {
+        return x.id !== "admin";
+    });
 
     var batch = writeBatch(db);
     users.forEach((user) => {
         const docRef = doc(db, collectionRef, user.id);
         batch.delete(docRef);
-    })
-    await batch.commit()
-    res.status(200).send({ success: true, code: 200, message: "Deleted all mock users" })
-})
+    });
+    await batch.commit();
+    res.status(200).send({ success: true, message: "Deleted all mock users" });
+});
 
-router.get('/addMock', async (req, res) => {
+router.get("/addMock", async (req, res) => {
+    const roles = {
+        1: "1D17R3ozi5G8Ih12H4CV",
+        2: "HrBpfqyOOPVomC6FuyPM",
+        3: "TnKVhc7Euaskx4W9n3sW",
+        4: "ZbxTmrJKbT16HOSYPbN2",
+        5: "s4sXB2J5q6Zx1f4qIIwB",
+    };
+
     const users = [];
     for (let i = 0; i < 20; i++) {
-        var name = uniqueNamesGenerator({
-            dictionaries: [names],
-        }) + ' ' + uniqueNamesGenerator({
-            dictionaries: [names],
-        });
+        var name =
+            uniqueNamesGenerator({
+                dictionaries: [names],
+            }) +
+            uniqueNamesGenerator({
+                dictionaries: [names],
+            });
         var user = new User(
             roles[getRndInteger(1, 5)],
-            name.replace(' ', '').toLowerCase(),
-            '123456',
+            name.toLowerCase(),
+            "123456",
             name,
-            getRndInteger(1990, 2004) + '/' + getRndInteger(1, 12) + "/" + getRndInteger(1, 30),
-            ['Staff'],
-            '+840' + getRndInteger(30, 99) + getRndInteger(100000, 999999),
-            'Activated',
-            "/avatar/" + name.toLowerCase()
+            getRndInteger(1990, 2004) +
+            "/" +
+            getRndInteger(1, 12) +
+            "/" +
+            getRndInteger(1, 30),
+            ["Staff"],
+            "+840" + getRndInteger(30, 99) + getRndInteger(100000, 999999),
+            "Activated",
+            "/avatar/" + name.replace(" ", "").toLowerCase(),
+            name.replace(" ", "") + "@gmail.com"
         );
         users.push(user);
     }
@@ -104,12 +111,16 @@ router.get('/addMock', async (req, res) => {
 
     users.forEach((user) => {
         const docRef = doc(db, collectionRef, user.username);
-        console.log(user.toJson())
+        console.log(user.toJson());
         batch.set(docRef, user.toJson());
-    })
+    });
 
-    await batch.commit()
-    res.status(200).send({ success: true, code: 200, message: "20 new users added" })
+    await batch.commit();
+    res.status(200).send({
+        success: true,
+        code: 200,
+        message: "20 new users added",
+    });
 });
 
 router.post("/edit", async (req, res) => {
@@ -122,7 +133,8 @@ router.post("/edit", async (req, res) => {
         req.body.dob,
         req.body.role,
         req.body.phone,
-        req.body.stat
+        req.body.stat,
+        req.body.email
     );
     await updateDocument(collectionRef, user.id, user);
     console.log("User updated, ID: " + req.body.id);
