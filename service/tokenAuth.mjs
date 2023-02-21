@@ -111,6 +111,9 @@ const authorize = async (username, password) => {
 };
 
 const isExists = async (username) => {
+    if (username == null) {
+        return false;
+    }
     const docRef = doc(db, constants.UserRepository, username);
     const querySnapshot = await getDoc(docRef);
     if (querySnapshot.exists()) {
