@@ -10,7 +10,7 @@ import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
 import * as Constants from "../service/constants.mjs";
 
-import { writeBatch, doc, getFirestore } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import { addMockUsers, clearDocument } from "../utils/mockHelper.mjs";
 
 const router = express.Router();
@@ -20,20 +20,27 @@ const app = initializeApp(Constants.firebaseConfig);
 const db = getFirestore(app);
 
 router.get("/", async (req, res) => {
-    const users = [];
-    var snapshots = await fetchAllDocuments(collectionRef);
-    console.log("User Page");
-    snapshots.forEach((snapshot) => {
-        users.push(User.fromJson(snapshot.data(), snapshot.id));
-    });
-    res.send(users);
-});
-
-router.get("/get/", async (req, res) => {
     const id = req.query.id;
-    var snapshot = await fetchDocumentById(collectionRef, id);
-    var dept = User.fromJson(snapshot.data(), snapshot.id);
-    res.send(dept);
+    if (id) {
+        var snapshot = await fetchDocumentById(collectionRef, id);
+        if (snapshot) {
+            var dept = User.fromJson(snapshot.data(), snapshot.id);
+            res.status(200).send(dept);
+        }
+        res.status(400).send({
+            success: false,
+            code: 400,
+            message: "Document does not exist!",
+        });
+    } else {
+        const users = [];
+        var snapshots = await fetchAllDocuments(collectionRef);
+        console.log("User Page");
+        snapshots.forEach((snapshot) => {
+            users.push(User.fromJson(snapshot.data(), snapshot.id));
+        });
+        res.send(users);
+    }
 });
 
 router.post("/add", async (req, res) => {

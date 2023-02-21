@@ -6,6 +6,7 @@ import {
     addDocument,
     deleteDocument,
     updateDocument,
+    fetchAllMatchingDocuments,
 } from "../service/firebaseHelper.mjs";
 import { collection, addDoc, getFirestore } from "firebase/firestore";
 import { Idea } from "../model/idea.mjs";
@@ -21,24 +22,31 @@ const app = initializeApp(Constants.firebaseConfig);
 const db = getFirestore(app);
 
 router.get("/", async (req, res) => {
-    const Ideas = [];
-    var snapshots = await fetchAllDocuments(collection);
-    console.log("Idea Page");
-    snapshots.forEach((snapshot) => {
-        Ideas.push(Idea.fromJson(snapshot.data(), snapshot.id));
-    });
-    res.send(Ideas);
+    const id = req.query.id;
+    if (id) {
+        var snapshot = await fetchDocumentById(collectionRef, id);
+        if (snapshot) {
+            var idea = Idea.fromJson(snapshot.data(), snapshot.id);
+            res.status(200).send(idea);
+        }
+        res.status(400).send({
+            success: false,
+            code: 400,
+            message: "Document does not exist!",
+        });
+    } else {
+        const Ideas = [];
+        var snapshots = await fetchAllDocuments(collectionRef);
+        console.log("Idea Page");
+        snapshots.forEach((snapshot) => {
+            Ideas.push(Idea.fromJson(snapshot.data(), snapshot.id));
+        });
+        res.status(200).send(Ideas);
+    }
 });
 
 router.post("/approve", async (req, res) => {
     const id = req.body.post_id;
-});
-
-router.get("/idea", async (req, res) => {
-    const id = req.query.id;
-    var snapshot = await fetchDocumentById(collection, id);
-    var idea = Idea.fromJson(snapshot.data(), snapshot.id);
-    res.send(idea);
 });
 
 router.post("/test", containsRole("Admin"), async (req, res) => {
@@ -72,6 +80,28 @@ router.get("/addMock", async (req, res) => {
     });
 });
 
+router.get("/category", async (req, res) => {
+    const categoryId = req.query.id;
+    const ideas = [];
+
+    const docs = await fetchAllMatchingDocuments(
+        collectionRef,
+        "category",
+        categoryId
+    );
+
+    docs.forEach((snapshot) => {
+        ideas.push(Idea.fromJson(snapshot.data(), snapshot.id));
+        console.log(snapshot.data()["category"]);
+    });
+
+    res.status(200).send({
+        success: true,
+        code: 200,
+        message: ideas,
+    });
+});
+
 router.post("/add", async (req, res) => {
     var idea = new Idea(
         null,
@@ -84,7 +114,7 @@ router.post("/add", async (req, res) => {
         req.body.stat,
         req.body.is_anonymous
     );
-    await addDocument(collection, idea);
+    await addDocument(collectionRef, idea);
 
     const receiver = req.body.approver_id;
     var today = new Date();
@@ -128,12 +158,12 @@ router.post("/edit", async (req, res) => {
         req.body.stat,
         req.body.is_anonymous
     );
-    await updateDocument(collection, req.body.id, idea);
+    await updateDocument(collectionRef, req.body.id, idea);
     console.log("Idea updated, ID: " + req.body.id);
 });
 
 router.get("/delete", async (req, res) => {
-    await deleteDocument(collection, req.body.id);
+    await deleteDocument(collectionRef, req.body.id);
     console.log("Idea deleted, ID: " + req.body.id);
 });
 
