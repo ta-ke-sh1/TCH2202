@@ -13,23 +13,27 @@ const router = express.Router();
 const collection = Constants.DepartmentRepository;
 
 router.get("/", async (req, res) => {
-    const departments = [];
-    var snapshots = await fetchAllDocuments(collection);
-    console.log("Department Page");
-    snapshots.forEach((snapshot) => {
-        departments.push(Department.fromJson(snapshot.data(), snapshot.id));
-    });
-    res.send(departments);
-});
-
-router.get("/get", async (req, res) => {
     const id = req.query.id;
-    var snapshot = await fetchDocumentById(collection, id);
-    if (snapshot) {
-        var dept = Department.fromJson(snapshot.data(), snapshot.id);
-        res.send(dept);
+    if (id) {
+        const id = req.query.id;
+        var snapshot = await fetchDocumentById(collection, id);
+        if (snapshot) {
+            var dept = Department.fromJson(snapshot.data(), snapshot.id);
+            res.send(dept);
+            return;
+        }
+    } else {
+        const departments = [];
+        var snapshots = await fetchAllDocuments(collection);
+        console.log("Department Page");
+        snapshots.forEach((snapshot) => {
+            departments.push(Department.fromJson(snapshot.data(), snapshot.id));
+        });
+        res.send(departments);
     }
 });
+
+router.get("/get", async (req, res) => {});
 
 router.post("/add", async (req, res) => {
     var department = new Department(null, req.body.name, 0);

@@ -7,8 +7,9 @@ import {
     deleteDocument,
     updateDocument,
     fetchAllMatchingDocuments,
+    fetchAllMatchingDocumentsMultipleCriteria,
 } from "../service/firebaseHelper.mjs";
-import { collection, addDoc, getFirestore } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import { Idea } from "../model/idea.mjs";
 import * as Constants from "../service/constants.mjs";
 import { sendMail } from "../service/mail.mjs";
@@ -80,10 +81,37 @@ router.get("/addMock", async (req, res) => {
     });
 });
 
+router.get("/sort", async (req, res) => {
+    const startDate = req.query.fromDate;
+    const endDate = req.query.toDate;
+    const sortBy = req.query.sort;
+    const ascending = req.query.asc;
+
+    const ideas = [];
+    const docs = await fetchAllMatchingDocumentsMultipleCriteria(
+        collectionRef,
+        startDate,
+        endDate,
+        sortBy,
+        ascending
+    );
+
+    docs.forEach((snapshot) => {
+        ideas.push(Idea.fromJson(snapshot.data(), snapshot.id));
+        console.log(snapshot.data()["category"]);
+    });
+
+    res.status(200).send({
+        success: true,
+        code: 200,
+        message: startDate + " " + endDate + " " + sortBy + " " + ascending,
+    });
+});
+
 router.get("/category", async (req, res) => {
     const categoryId = req.query.id;
-    const ideas = [];
 
+    const ideas = [];
     const docs = await fetchAllMatchingDocuments(
         collectionRef,
         "category",

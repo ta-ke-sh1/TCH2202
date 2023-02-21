@@ -10,6 +10,7 @@ import {
     getDoc,
     where,
     query,
+    orderBy,
 } from "firebase/firestore";
 import * as constants from "./constants.mjs";
 
@@ -19,6 +20,27 @@ const db = getFirestore(app);
 const fetchAllDocuments = async (document) => {
     const documents = [];
     const querySnapshot = await getDocs(collection(db, document));
+    querySnapshot.forEach((doc) => {
+        documents.push(doc);
+    });
+    return documents;
+};
+
+const fetchAllMatchingDocumentsMultipleCriteria = async (
+    document,
+    start,
+    end,
+    sort,
+    ascending
+) => {
+    const documents = [];
+    const q = query(
+        collection(db, document),
+        where("post_date", ">=", start),
+        where("post_date", "<=", end),
+        orderBy(sort, ascending)
+    );
+    const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
         documents.push(doc);
     });
@@ -77,6 +99,7 @@ const updateDocument = async (collection, id, update_object) => {
 export {
     fetchAllDocuments,
     fetchAllMatchingDocuments,
+    fetchAllMatchingDocumentsMultipleCriteria,
     fetchDocumentById,
     addDocument,
     deleteDocument,
