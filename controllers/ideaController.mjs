@@ -1,4 +1,5 @@
 import express from "express";
+import { initializeApp } from "firebase/app";
 import {
     fetchAllDocuments,
     fetchDocumentById,
@@ -6,13 +7,18 @@ import {
     deleteDocument,
     updateDocument,
 } from "../service/firebaseHelper.mjs";
+import { collection, addDoc, getFirestore } from "firebase/firestore";
 import { Idea } from "../model/idea.mjs";
 import * as Constants from "../service/constants.mjs";
 import { sendMail } from "../service/mail.mjs";
 import { containsRole } from "../service/tokenAuth.mjs";
+import { addMockIdeas } from "../utils/mockHelper.mjs";
 
 const router = express.Router();
-const collection = Constants.IdeaRepository;
+const collectionRef = Constants.IdeaRepository;
+
+const app = initializeApp(Constants.firebaseConfig);
+const db = getFirestore(app);
 
 router.get("/", async (req, res) => {
     const Ideas = [];
@@ -54,6 +60,15 @@ router.post("/test", containsRole("Admin"), async (req, res) => {
     res.status(200).send({
         success: true,
         message: "Email sent to " + receiver,
+    });
+});
+
+router.get("/addMock", async (req, res) => {
+    addMockIdeas();
+    res.status(200).send({
+        success: true,
+        code: 200,
+        message: "40 new ideas added",
     });
 });
 

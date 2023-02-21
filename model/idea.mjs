@@ -1,8 +1,9 @@
 export class Idea {
     constructor(
-        id,
         writer_id,
         approver_id,
+        category,
+        content,
         file,
         post_date,
         expiration_date,
@@ -10,9 +11,10 @@ export class Idea {
         stat,
         is_anonymous
     ) {
-        this.id = id;
         this.writer_id = writer_id;
         this.approver_id = approver_id;
+        this.category = category;
+        this.content = content;
         this.file = file;
         this.post_date = post_date;
         this.expiration_date = expiration_date;
@@ -23,9 +25,10 @@ export class Idea {
 
     static fromJson(json, docId) {
         return new Idea(
-            docId,
             json.writer_id,
             json.approver_id,
+            json.category,
+            json.content,
             json.file,
             json.post_date,
             json.expiration_date,
@@ -39,6 +42,8 @@ export class Idea {
         return {
             writer_id: this.writer_id,
             approver_id: this.approver_id,
+            category: this.category,
+            content: this.content,
             file: this.file,
             post_date: this.post_date,
             expiration_date: this.expiration_date,
