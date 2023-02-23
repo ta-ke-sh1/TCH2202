@@ -1,5 +1,5 @@
 export class User {
-    constructor(
+    constructor (
         department_id,
         username,
         password,
@@ -26,7 +26,7 @@ export class User {
     static fromJson(json, docId) {
         return new User(
             json.department_id,
-            json.username,
+            docId,
             json.password,
             json.fullName,
             json.dob,

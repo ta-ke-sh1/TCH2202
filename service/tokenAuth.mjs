@@ -3,19 +3,17 @@ import {
     getFirestore,
     getDoc,
     doc,
-    collection,
-    query,
-    where,
+    setDoc,
 } from "firebase/firestore";
 import * as constants from "./constants.mjs";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { User } from "../model/user.mjs";
 
-const { sign, verify } = jwt;
-
 const app = initializeApp(constants.firebaseConfig);
 const db = getFirestore(app);
+
+import bcrypt from 'bcryptjs';
 
 function containsRole(role) {
     return function middle(req, res, next) {
@@ -62,9 +60,9 @@ function containsRole(role) {
     };
 }
 
-const register = async (object) => {
-    var isExist = await isExists(username);
-    if (isExist !== false) {
+const register = async (document) => {
+    var isExist = await isExists(document.username);
+    if (isExist === false) {
         return {
             code: 406,
             message: "User already existed!",
@@ -72,17 +70,23 @@ const register = async (object) => {
     }
 
     try {
-        const docRef = await addDoc(
-            collection(db, constants.UserRepository),
-            object.toJson(),
-            object.username
+        console.log(document);
+        const docRef = await setDoc(
+            doc(db, constants.UserRepository, document.username),
+            document.toJson()
         );
-        console.log("Document written with ID: ", docRef.id);
-        return docRef.id;
+        return {
+            code: 200,
+            message: "Document written with ID: " + document.username,
+        };
     } catch (e) {
         console.error("Error adding document: ", e);
-        return "Error";
+        return {
+            code: 406,
+            message: "Error in adding document",
+        };
     }
+
 };
 
 const authorize = async (username, password) => {
@@ -96,7 +100,7 @@ const authorize = async (username, password) => {
     }
 
     var u = User.fromJson(user.data());
-    if (u.password != password) {
+    if (!bcrypt.compareSync(password, u.password)) {
         return {
             code: 406,
             message: "Incorrect password!",
@@ -129,7 +133,7 @@ const isExists = async (username) => {
     }
     const docRef = doc(db, constants.UserRepository, username);
     const querySnapshot = await getDoc(docRef);
-    if (querySnapshot.exists()) {
+    if (!querySnapshot.empty) {
         return querySnapshot;
     } else {
         return false;

@@ -1,5 +1,5 @@
 export class Idea {
-    constructor(
+    constructor (
         writer_id,
         approver_id,
         category,

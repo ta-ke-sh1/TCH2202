@@ -10,6 +10,9 @@ import {
     collection,
     addDoc,
 } from "firebase/firestore";
+import { fetchAllDocuments } from "../service/firebaseHelper.mjs";
+import bcrypt from 'bcryptjs';
+import { User } from "../model/user.mjs";
 
 const app = initializeApp(Constants.firebaseConfig);
 const db = getFirestore(app);
@@ -41,13 +44,13 @@ async function addMockUsers() {
         var user = new User(
             roles[getRndInteger(1, 5)],
             name.toLowerCase(),
-            "123456",
+            bcrypt.hashSync("123456", 10),
             name,
             getRndInteger(1990, 2004) +
-                "/" +
-                getRndInteger(1, 12) +
-                "/" +
-                getRndInteger(1, 30),
+            "/" +
+            getRndInteger(1, 12) +
+            "/" +
+            getRndInteger(1, 30),
             ["Staff"],
             "+840" + getRndInteger(30, 99) + getRndInteger(100000, 999999),
             "Activated",
@@ -118,6 +121,8 @@ async function clearDocument(collection) {
         const docRef = doc(db, collection, user.id);
         batch.delete(docRef);
     });
+
+    await batch.commit();
 }
 
 export { addMockIdeas, addMockUsers, clearDocument };

@@ -9,6 +9,7 @@ import {
 import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
 import * as Constants from "../service/constants.mjs";
+import bcrypt from 'bcryptjs';
 
 import { getFirestore } from "firebase/firestore";
 import { addMockUsers, clearDocument } from "../utils/mockHelper.mjs";
@@ -47,16 +48,17 @@ router.post("/add", async (req, res) => {
     var user = new User(
         req.body.department_id,
         req.body.username,
-        req.body.password,
+        bcrypt.hashSync(req.body.password, 10),
         req.body.fullName,
         req.body.dob,
         req.body.role,
         req.body.phone,
         req.body.stat,
+        req.body.avatar,
         req.body.email
     );
-    await register(collectionRef, user);
-    console.log("User added, ID: " + req.body.id);
+    var result = await register(user);
+    res.status(result.code).json({ message: "User added, ID: " + result.message })
 });
 
 router.get("/clearDatabase", async (req, res) => {
