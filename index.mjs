@@ -5,6 +5,8 @@ import ideaController from "./controllers/ideaController.mjs";
 import userController from "./controllers/userController.mjs";
 import commentController from "./controllers/commentController.mjs";
 import { authorize, containsRole } from "./service/tokenAuth.mjs";
+import { isExists } from './service/tokenAuth.mjs';
+import jwt from "jsonwebtoken";
 
 const app = express();
 
@@ -34,12 +36,44 @@ app.use("/comment", commentController);
 app.post("/login", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
-    var respond = await authorize(username, password);
-    res.send(respond);
+    if (username === undefined || password === undefined) {
+        res.status(300).send({
+            message: 'Invalid password/username!',
+        });
+    } else {
+        var respond = await authorize(username, password);
+        res.status(respond.code).json(respond);
+    }
+});
+
+app.post('/refresh', async (req, res) => {
+    const refreshToken = req.body.refreshToken;
+    jwt.verify(refreshToken.substring(7, refreshToken.length), process.env.JWT_SECRET_REFRESH,
+        async (err, decoded) => {
+            if (err) {
+                return res.status(406).json({ message: 'Invalid Token' });
+            }
+            else {
+                var user = await isExists(decoded.user);
+                const accessToken = "Bearer " + jwt.sign({
+                    user: user.id,
+                    email: user.email,
+                    role: user.data().role,
+                }, process.env.JWT_SECRET_ACCESS, {
+                    expiresIn: '10m'
+                });
+                return res.json({ accessToken });
+            }
+        })
 });
 
 app.get("/", cors(), containsRole('Admin'), async (req, res) => {
     res.status(200).send({ success: true, code: 200, message: req.decodedToken })
+});
+
+app.get("/test", cors(), async (req, res) => {
+    console.log(req.get('Refresh'));
+    res.status(200).json(req.cookies);
 });
 
 const PORT = process.env.PORT || 5000;

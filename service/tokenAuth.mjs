@@ -10,6 +10,7 @@ import {
 import * as constants from "./constants.mjs";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
+import { User } from "../model/user.mjs";
 
 const { sign, verify } = jwt;
 
@@ -19,8 +20,8 @@ const db = getFirestore(app);
 function containsRole(role) {
     return function middle(req, res, next) {
         var token = req.get("Authorization");
-        if (typeof token === "undefined") {
-            res.status(403).send({
+        if (token === undefined) {
+            res.status(401).send({
                 success: false,
                 message: "No Token Provided.",
             });
@@ -28,9 +29,9 @@ function containsRole(role) {
         }
 
         if (!token.startsWith("Bearer ")) {
-            res.status(403).send({
+            res.status(400).send({
                 success: false,
-                message: "No Token Provided.",
+                message: "Invalid token format.",
             });
             return;
         }
@@ -41,12 +42,12 @@ function containsRole(role) {
                 process.env.JWT_SECRET
             );
         } catch (err) {
-            res.status(501).send({ success: false, message: err });
+            res.status(406).send({ success: false, message: err });
             return;
         }
 
         if (!decoded.role.includes(role)) {
-            res.status(502).send({
+            res.status(401).send({
                 success: false,
                 message: "You are unauthorized for this action!",
             });
@@ -65,14 +66,14 @@ const register = async (object) => {
     var isExist = await isExists(username);
     if (isExist !== false) {
         return {
-            code: "300",
+            code: 406,
             message: "User already existed!",
         };
     }
 
     try {
         const docRef = await addDoc(
-            collection(db, constants.UserRepostiory),
+            collection(db, constants.UserRepository),
             object.toJson(),
             object.username
         );
@@ -86,27 +87,39 @@ const register = async (object) => {
 
 const authorize = async (username, password) => {
     var user = await isExists(username);
+
     if (user === false) {
         return {
-            code: "300",
+            code: 406,
             message: "no such document",
         };
     }
 
-    console.log(user.data());
+    var u = User.fromJson(user.data());
+    if (u.password != password) {
+        return {
+            code: 406,
+            message: "Incorrect password!",
+        };
+    }
 
-    const secret = process.env.JWT_SECRET;
-    const payload = {
+    var access_secret = process.env.JWT_SECRET_ACCESS;
+    const accessToken = jwt.sign({
         user: user.id,
+        email: user.email,
         role: user.data().role,
-    };
-    const options = { expiresIn: "2d" };
+    }, access_secret, { expiresIn: "10m" });
 
-    const token = jwt.sign(payload, secret, options);
+    var refresh_secret = process.env.JWT_SECRET_REFRESH
+    console.log(refresh_secret);
+    const refreshToken = jwt.sign({
+        user: user.id,
+    }, refresh_secret, { expiresIn: "2d" });
 
     return {
-        code: "200",
-        token: "Bearer " + token,
+        code: 200,
+        accessToken: "Bearer " + accessToken,
+        refreshToken: "Bearer " + refreshToken,
     };
 };
 
@@ -123,4 +136,4 @@ const isExists = async (username) => {
     }
 };
 
-export { authorize, register, containsRole };
+export { authorize, register, containsRole, isExists };
