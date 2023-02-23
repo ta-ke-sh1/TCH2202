@@ -23,7 +23,7 @@ export class Idea {
         this.is_anonymous = is_anonymous;
     }
 
-    static fromJson(json, docId) {
+    static fromJson(json) {
         return new Idea(
             json.writer_id,
             json.approver_id,

@@ -26,19 +26,16 @@ const fetchAllDocuments = async (document) => {
     return documents;
 };
 
-const fetchAllMatchingDocumentsMultipleCriteria = async (
+const fetchAllMatchingDocumentsWithinRange = async (
     document,
     start,
     end,
-    sort,
-    ascending
 ) => {
-    const documents = [];
+    var documents = [];
     const q = query(
         collection(db, document),
         where("post_date", ">=", start),
         where("post_date", "<=", end),
-        orderBy(sort, ascending)
     );
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
@@ -99,7 +96,7 @@ const updateDocument = async (collection, id, update_object) => {
 export {
     fetchAllDocuments,
     fetchAllMatchingDocuments,
-    fetchAllMatchingDocumentsMultipleCriteria,
+    fetchAllMatchingDocumentsWithinRange,
     fetchDocumentById,
     addDocument,
     deleteDocument,

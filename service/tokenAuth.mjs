@@ -62,7 +62,7 @@ function containsRole(role) {
 
 const register = async (document) => {
     var isExist = await isExists(document.username);
-    if (isExist === false) {
+    if (isExist) {
         return {
             code: 406,
             message: "User already existed!",
@@ -71,7 +71,7 @@ const register = async (document) => {
 
     try {
         console.log(document);
-        const docRef = await setDoc(
+        await setDoc(
             doc(db, constants.UserRepository, document.username),
             document.toJson()
         );
@@ -92,7 +92,7 @@ const register = async (document) => {
 const authorize = async (username, password) => {
     var user = await isExists(username);
 
-    if (user === false) {
+    if (!user) {
         return {
             code: 406,
             message: "no such document",
@@ -115,7 +115,6 @@ const authorize = async (username, password) => {
     }, access_secret, { expiresIn: "10m" });
 
     var refresh_secret = process.env.JWT_SECRET_REFRESH
-    console.log(refresh_secret);
     const refreshToken = jwt.sign({
         user: user.id,
     }, refresh_secret, { expiresIn: "2d" });
@@ -133,10 +132,10 @@ const isExists = async (username) => {
     }
     const docRef = doc(db, constants.UserRepository, username);
     const querySnapshot = await getDoc(docRef);
-    if (!querySnapshot.empty) {
-        return querySnapshot;
-    } else {
+    if (querySnapshot.data() === undefined || querySnapshot.data() === null) {
         return false;
+    } else {
+        return querySnapshot;
     }
 };
 

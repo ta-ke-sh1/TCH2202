@@ -7,7 +7,7 @@ import {
     deleteDocument,
     updateDocument,
     fetchAllMatchingDocuments,
-    fetchAllMatchingDocumentsMultipleCriteria,
+    fetchAllMatchingDocumentsWithinRange,
 } from "../service/firebaseHelper.mjs";
 import { getFirestore } from "firebase/firestore";
 import { Idea } from "../model/idea.mjs";
@@ -82,29 +82,48 @@ router.get("/addMock", async (req, res) => {
 });
 
 router.get("/sort", async (req, res) => {
-    const startDate = req.query.fromDate;
-    const endDate = req.query.toDate;
-    const sortBy = req.query.sort;
-    const ascending = req.query.asc;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+    const sort = req.query.sort;
+    const asc = req.query.asc;
 
-    const ideas = [];
-    const docs = await fetchAllMatchingDocumentsMultipleCriteria(
+    var ideas = [];
+    const docs = await fetchAllMatchingDocumentsWithinRange(
         collectionRef,
         startDate,
         endDate,
-        sortBy,
-        ascending
     );
 
     docs.forEach((snapshot) => {
-        ideas.push(Idea.fromJson(snapshot.data(), snapshot.id));
-        console.log(snapshot.data()["category"]);
+        ideas.push(Idea.fromJson(snapshot.data()));
     });
+
+    switch (sort) {
+        case 'count':
+            ideas = ideas.sort((a, b) => { return a.visit_count - b.visit_count });
+            break;
+        case 'post_date':
+            ideas = ideas.sort((a, b) => { return a.post_date - b.post_date });
+            break;
+        case 'expiration_date':
+            ideas = ideas.sort((a, b) => { return a.expiration_date - b.expiration_date });
+            break;
+        default:
+            break;
+    }
+
+    switch (asc) {
+        case 'asc':
+            ideas = ideas.reverse();
+            break;
+        default:
+            break;
+    }
 
     res.status(200).send({
         success: true,
         code: 200,
-        message: startDate + " " + endDate + " " + sortBy + " " + ascending,
+        ideas: ideas,
     });
 });
 
@@ -162,9 +181,9 @@ router.post("/add", async (req, res) => {
         receiver,
         "New post added",
         "Sender: " +
-            req.body.writer_id +
-            ", this message was generated at: " +
-            date
+        req.body.writer_id +
+        ", this message was generated at: " +
+        date
     );
     res.status(200).send({
         success: true,
