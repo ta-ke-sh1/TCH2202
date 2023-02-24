@@ -15,6 +15,31 @@ import * as Constants from "../service/constants.mjs";
 import { sendMail } from "../service/mail.mjs";
 import { containsRole } from "../service/tokenAuth.mjs";
 import { addMockIdeas } from "../utils/mockHelper.mjs";
+import * as path from "path";
+
+import multer from "multer";
+import fs from "fs";
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        var dir = path.resolve() + "/assets/files/" + req.body.writer_id;
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
+        }
+        cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+        cb(
+            null,
+            req.body.writer_id +
+                "_" +
+                file.originalname +
+                path.extname(file.originalname)
+        );
+    },
+});
+
+const upload = multer({ storage: storage });
 
 const router = express.Router();
 const collectionRef = Constants.IdeaRepository;
@@ -91,7 +116,7 @@ router.get("/sort", async (req, res) => {
     const docs = await fetchAllMatchingDocumentsWithinRange(
         collectionRef,
         startDate,
-        endDate,
+        endDate
     );
 
     docs.forEach((snapshot) => {
@@ -99,21 +124,27 @@ router.get("/sort", async (req, res) => {
     });
 
     switch (sort) {
-        case 'count':
-            ideas = ideas.sort((a, b) => { return a.visit_count - b.visit_count });
+        case "count":
+            ideas = ideas.sort((a, b) => {
+                return a.visit_count - b.visit_count;
+            });
             break;
-        case 'post_date':
-            ideas = ideas.sort((a, b) => { return a.post_date - b.post_date });
+        case "post_date":
+            ideas = ideas.sort((a, b) => {
+                return a.post_date - b.post_date;
+            });
             break;
-        case 'expiration_date':
-            ideas = ideas.sort((a, b) => { return a.expiration_date - b.expiration_date });
+        case "expiration_date":
+            ideas = ideas.sort((a, b) => {
+                return a.expiration_date - b.expiration_date;
+            });
             break;
         default:
             break;
     }
 
     switch (asc) {
-        case 'asc':
+        case "asc":
             ideas = ideas.reverse();
             break;
         default:
@@ -149,45 +180,37 @@ router.get("/category", async (req, res) => {
     });
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", upload.array("items", 10), async (req, res) => {
     var idea = new Idea(
-        null,
         req.body.writer_id,
         req.body.approver_id,
-        req.body.file,
+        req.body.category,
+        req.body.content,
+        req.body.items,
         req.body.post_date,
         req.body.expiration_date,
         req.body.visit_count,
         req.body.stat,
         req.body.is_anonymous
     );
-    await addDocument(collectionRef, idea);
 
-    const receiver = req.body.approver_id;
-    var today = new Date();
-    var date =
-        today.getFullYear() +
-        "-" +
-        (today.getMonth() + 1) +
-        "-" +
-        today.getDate() +
-        " : " +
-        today.getHours() +
-        ":" +
-        today.getMinutes() +
-        ":" +
-        today.getSeconds();
-    sendMail(
-        receiver,
-        "New post added",
-        "Sender: " +
-        req.body.writer_id +
-        ", this message was generated at: " +
-        date
-    );
+    if (req.files) {
+        console.log(req.files.path);
+    } else {
+        console.log("No files attached");
+    }
+    // await addDocument(collectionRef, idea);
+
+    // const receiver = req.body.approver_id;
+    // sendMail(
+    //     receiver,
+    //     "New post added",
+    //     "Sender: " +
+    //         req.body.writer_id
+    // );
     res.status(200).send({
         success: true,
-        message: "Email sent to " + receiver,
+        message: idea,
     });
 
     console.log("Idea added, ID: " + req.body.id);

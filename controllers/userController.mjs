@@ -9,7 +9,7 @@ import {
 import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
 import * as Constants from "../service/constants.mjs";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 import { getFirestore } from "firebase/firestore";
 import { addMockUsers, clearDocument } from "../utils/mockHelper.mjs";
@@ -19,6 +19,22 @@ const collectionRef = Constants.UserRepository;
 
 const app = initializeApp(Constants.firebaseConfig);
 const db = getFirestore(app);
+
+import multer from "multer";
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.resolve() + "/assets/avatar");
+    },
+    filename: function (req, file, cb) {
+        cb(
+            null,
+            "avatar-" + req.body.username + path.extname(file.originalname)
+        );
+    },
+});
+
+const upload = multer({ storage: storage });
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
@@ -58,7 +74,9 @@ router.post("/add", async (req, res) => {
         req.body.email
     );
     var result = await register(user);
-    res.status(result.code).json({ message: "User added, ID: " + result.message })
+    res.status(result.code).json({
+        message: "User added, ID: " + result.message,
+    });
 });
 
 router.get("/clearDatabase", async (req, res) => {
