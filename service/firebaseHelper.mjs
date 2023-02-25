@@ -81,6 +81,10 @@ const addDocument = async (collectionRef, object) => {
 
 const deleteDocument = async (collectionRef, id) => {
     await deleteDoc(doc(db, collectionRef, id));
+    return {
+        code: 200,
+        message: "Deleted user with id: " + id,
+    };
 };
 
 const updateDocument = async (collectionRef, id, update_object) => {
@@ -90,6 +94,10 @@ const updateDocument = async (collectionRef, id, update_object) => {
         { capital: true },
         { merged: true }
     );
+    return {
+        code: 200,
+        message: "Updated user with id: " + id,
+    };
 };
 
 export {

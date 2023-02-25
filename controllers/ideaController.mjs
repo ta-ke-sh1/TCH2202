@@ -228,13 +228,19 @@ router.post("/edit", async (req, res) => {
         req.body.stat,
         req.body.is_anonymous
     );
-    await updateDocument(collectionRef, req.body.id, idea);
+    const respond = await updateDocument(collectionRef, req.body.id, idea);
     console.log("Idea updated, ID: " + req.body.id);
+    res.status(respond.code).send({
+        message: respond.message,
+    });
 });
 
 router.get("/delete", async (req, res) => {
-    await deleteDocument(collectionRef, req.body.id);
+    const respond = await deleteDocument(collectionRef, req.body.id);
     console.log("Idea deleted, ID: " + req.body.id);
+    res.status(respond.code).send({
+        message: respond.message,
+    });
 });
 
 export default router;

@@ -49,13 +49,19 @@ router.post("/edit", async (req, res) => {
         req.body.name,
         req.body.emp_count
     );
-    await updateDocument(collection, department.id, department);
+    const respond = await updateDocument(collection, department.id, department);
     console.log("Department updated, ID: " + req.body.id);
+    res.status(respond.code).send({
+        message: respond.message,
+    });
 });
 
 router.get("/delete", async (req, res) => {
-    await deleteDocument(collection, req.body.id);
+    const respond = await deleteDocument(collection, req.body.id);
     console.log("Department deleted, ID: " + req.body.id);
+    res.status(respond.code).send({
+        message: respond.message,
+    });
 });
 
 export default router;

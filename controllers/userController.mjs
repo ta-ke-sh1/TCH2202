@@ -106,13 +106,18 @@ router.post("/edit", async (req, res) => {
         req.body.stat,
         req.body.email
     );
-    await updateDocument(collectionRef, user.id, user);
-    console.log("User updated, ID: " + req.body.id);
+    const respond = await updateDocument(collectionRef, user.id, user);
+    res.status(respond.code).send({
+        message: respond.message,
+    });
 });
 
 router.get("/delete", async (req, res) => {
-    await deleteDocument(collectionRef, req.body.id);
+    const respond = await deleteDocument(collectionRef, req.body.id);
     console.log("User deleted, ID: " + req.body.id);
+    res.status(respond.code).send({
+        message: respond.message,
+    });
 });
 
 export default router;
