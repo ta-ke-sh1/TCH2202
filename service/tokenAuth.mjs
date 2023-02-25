@@ -1,10 +1,5 @@
 import { initializeApp } from "firebase/app";
-import {
-    getFirestore,
-    getDoc,
-    doc,
-    setDoc,
-} from "firebase/firestore";
+import { getFirestore, getDoc, doc, setDoc } from "firebase/firestore";
 import * as constants from "./constants.mjs";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
@@ -13,7 +8,7 @@ import { User } from "../model/user.mjs";
 const app = initializeApp(constants.firebaseConfig);
 const db = getFirestore(app);
 
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 function containsRole(role) {
     return function middle(req, res, next) {
@@ -37,7 +32,7 @@ function containsRole(role) {
         try {
             var decoded = jwt.verify(
                 token.substring(7, token.length),
-                process.env.JWT_SECRET
+                process.env.JWT_SECRET_ACCESS
             );
         } catch (err) {
             res.status(406).send({ success: false, message: err });
@@ -52,7 +47,7 @@ function containsRole(role) {
         } else {
             var decoded = jwt.verify(
                 token.substring(7, token.length),
-                process.env.JWT_SECRET
+                process.env.JWT_SECRET_ACCESS
             );
             req.decodedToken = decoded;
             next();
@@ -86,7 +81,6 @@ const register = async (document) => {
             message: "Error in adding document",
         };
     }
-
 };
 
 const authorize = async (username, password) => {
@@ -108,16 +102,24 @@ const authorize = async (username, password) => {
     }
 
     var access_secret = process.env.JWT_SECRET_ACCESS;
-    const accessToken = jwt.sign({
-        user: user.id,
-        email: user.email,
-        role: user.data().role,
-    }, access_secret, { expiresIn: "10m" });
+    const accessToken = jwt.sign(
+        {
+            user: user.id,
+            email: user.email,
+            role: user.data().role,
+        },
+        access_secret,
+        { expiresIn: "10m" }
+    );
 
-    var refresh_secret = process.env.JWT_SECRET_REFRESH
-    const refreshToken = jwt.sign({
-        user: user.id,
-    }, refresh_secret, { expiresIn: "2d" });
+    var refresh_secret = process.env.JWT_SECRET_REFRESH;
+    const refreshToken = jwt.sign(
+        {
+            user: user.id,
+        },
+        refresh_secret,
+        { expiresIn: "2d" }
+    );
 
     return {
         code: 200,

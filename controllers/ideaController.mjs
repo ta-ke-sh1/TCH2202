@@ -29,13 +29,7 @@ const storage = multer.diskStorage({
         cb(null, dir);
     },
     filename: function (req, file, cb) {
-        cb(
-            null,
-            req.body.writer_id +
-                "_" +
-                file.originalname +
-                path.extname(file.originalname)
-        );
+        cb(null, req.body.writer_id + "_" + file.originalname);
     },
 });
 
@@ -181,12 +175,16 @@ router.get("/category", async (req, res) => {
 });
 
 router.post("/add", upload.array("items", 10), async (req, res) => {
+    var fileNames = [];
+    for (let i = 0; i < req.files.length; i++) {
+        fileNames.push(req.files[i].filename);
+    }
     var idea = new Idea(
         req.body.writer_id,
         req.body.approver_id,
         req.body.category,
         req.body.content,
-        req.body.items,
+        fileNames,
         req.body.post_date,
         req.body.expiration_date,
         req.body.visit_count,
@@ -198,8 +196,9 @@ router.post("/add", upload.array("items", 10), async (req, res) => {
         console.log(req.files.path);
     } else {
         console.log("No files attached");
+        return;
     }
-    // await addDocument(collectionRef, idea);
+    await addDocument(collectionRef, idea);
 
     // const receiver = req.body.approver_id;
     // sendMail(
