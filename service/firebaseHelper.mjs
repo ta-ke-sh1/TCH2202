@@ -26,16 +26,12 @@ const fetchAllDocuments = async (document) => {
     return documents;
 };
 
-const fetchAllMatchingDocumentsWithinRange = async (
-    document,
-    start,
-    end,
-) => {
+const fetchAllMatchingDocumentsWithinRange = async (document, start, end) => {
     var documents = [];
     const q = query(
         collection(db, document),
         where("post_date", ">=", start),
-        where("post_date", "<=", end),
+        where("post_date", "<=", end)
     );
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
@@ -54,9 +50,9 @@ const fetchAllMatchingDocuments = async (document, criteria, keyword) => {
     return documents;
 };
 
-const fetchDocumentById = async (collection, id) => {
+const fetchDocumentById = async (collectionRef, id) => {
     if (id != null) {
-        const docRef = doc(db, collection, id);
+        const docRef = doc(db, collectionRef, id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -69,9 +65,12 @@ const fetchDocumentById = async (collection, id) => {
     return null;
 };
 
-const addDocument = async (collection, object) => {
+const addDocument = async (collectionRef, object) => {
     try {
-        const docRef = await addDoc(collection(db, document), object.toJson());
+        const docRef = await addDoc(
+            collection(db, collectionRef),
+            object.toJson()
+        );
         console.log("Document written with ID: ", docRef.id);
         return docRef.id;
     } catch (e) {
@@ -80,13 +79,13 @@ const addDocument = async (collection, object) => {
     }
 };
 
-const deleteDocument = async (collection, id) => {
-    await deleteDoc(doc(db, collection, id));
+const deleteDocument = async (collectionRef, id) => {
+    await deleteDoc(doc(db, collectionRef, id));
 };
 
-const updateDocument = async (collection, id, update_object) => {
+const updateDocument = async (collectionRef, id, update_object) => {
     await setDoc(
-        doc(db, collection, id),
+        doc(db, collectionRef, id),
         update_object.toJson(),
         { capital: true },
         { merged: true }
