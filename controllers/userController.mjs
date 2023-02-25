@@ -14,6 +14,8 @@ import bcrypt from "bcryptjs";
 import { getFirestore } from "firebase/firestore";
 import { addMockUsers, clearDocument } from "../utils/mockHelper.mjs";
 
+import * as path from "path";
+
 const router = express.Router();
 const collectionRef = Constants.UserRepository;
 
