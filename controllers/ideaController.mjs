@@ -9,18 +9,26 @@ import {
     fetchAllMatchingDocuments,
     fetchAllMatchingDocumentsWithinRange,
 } from "../service/firebaseHelper.mjs";
-import { getFirestore } from "firebase/firestore";
 import { Idea } from "../model/idea.mjs";
 import * as Constants from "../service/constants.mjs";
 import { sendMail } from "../service/mail.mjs";
 import { containsRole } from "../service/tokenAuth.mjs";
 import { addMockIdeas } from "../utils/mockHelper.mjs";
+import { React } from "../model/react.mjs";
 
 const router = express.Router();
 const collectionRef = Constants.IdeaRepository;
+const reactionRef = Constants.ReactionRepository;
 
-const app = initializeApp(Constants.firebaseConfig);
-const db = getFirestore(app);
+router.get('/react', async (req, res) => {
+    const idea = req.query.idea;
+    const user = req.query.user;
+    const reaction = parseInt(req.query.reaction);
+
+    await updateDocument(reactionRef, idea + "-" + user, new React(idea + "-" + user, reaction));
+
+    res.status(200).send({ message: 'reacted' });
+})
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
@@ -46,8 +54,18 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/approve", async (req, res) => {
-    const id = req.body.post_id;
+router.get("/approve", async (req, res) => {
+    const id = req.query.post;
+    var idea = Idea.fromJson(await fetchDocumentById(collectionRef, id));
+
+    if (idea === null || idea === undefined) {
+        res.status(300).send({ message: 'Idea does not exists. Id: ' + id });
+    } else {
+        idea.stat = 'Approved';
+        await updateDocument(collectionRef, id, idea);
+        res.status(200).send({ message: 'Idea approved. Id: ' + id });
+    }
+
 });
 
 router.post("/test", containsRole("Admin"), async (req, res) => {

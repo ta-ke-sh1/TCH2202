@@ -3,6 +3,7 @@ const CategoryRepository = "Category";
 const DepartmentRepository = "Department";
 const IdeaRepository = "Idea";
 const CommentRepository = "Comment";
+const ReactionRepository = 'Reaction';
 
 const emailHost = "trunght.yrc@gmail.com";
 const emailPassword = "gqpukqyqnlclrjqs";
@@ -19,6 +20,7 @@ const firebaseConfig = {
 export {
     emailHost,
     emailPassword,
+    ReactionRepository,
     DepartmentRepository,
     CategoryRepository,
     UserRepository,

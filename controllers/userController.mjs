@@ -1,5 +1,4 @@
 import express from "express";
-import { initializeApp } from "firebase/app";
 import {
     fetchAllDocuments,
     fetchDocumentById,
@@ -11,14 +10,10 @@ import { User } from "../model/user.mjs";
 import * as Constants from "../service/constants.mjs";
 import bcrypt from 'bcryptjs';
 
-import { getFirestore } from "firebase/firestore";
 import { addMockUsers, clearDocument } from "../utils/mockHelper.mjs";
 
 const router = express.Router();
 const collectionRef = Constants.UserRepository;
-
-const app = initializeApp(Constants.firebaseConfig);
-const db = getFirestore(app);
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
