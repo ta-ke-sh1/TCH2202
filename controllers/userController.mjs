@@ -9,32 +9,18 @@ import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
 import * as Constants from "../service/constants.mjs";
 import bcrypt from "bcryptjs";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import * as path from "path";
 
 import { addMockUsers, clearDocument } from "../utils/mockHelper.mjs";
 
-import * as path from "path";
-
 const router = express.Router();
 const collectionRef = Constants.UserRepository;
-
-const app = initializeApp(Constants.firebaseConfig);
-const db = getFirestore(app);
+const storage = getStorage();
 
 import multer from "multer";
+var upload = multer({ storage: multer.memoryStorage() });
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.resolve() + "/assets/avatar");
-    },
-    filename: function (req, file, cb) {
-        cb(
-            null,
-            "avatar-" + req.body.username + path.extname(file.originalname)
-        );
-    },
-});
-
-const upload = multer({ storage: storage });
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
@@ -60,7 +46,39 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/add", async (req, res) => {
+
+router.post('/testFirestoreStorage', upload.single('avatar'), async (req, res) => {
+    const user = req.body.user;
+    console.log(req.file);
+    if (req.file) {
+        const storage = getStorage();
+        const filename = user + path.extname(req.file.originalname);
+        console.log(filename);
+        const storageRef = ref(storage, '/avatar/' + filename);
+
+        uploadBytes(storageRef, req.file.buffer).then((snapshot) => {
+            res.status(200).send({
+                message: 'Avatar saved to ' + storageRef
+            })
+        })
+
+    } else {
+        res.status(300).send({
+            message: 'no files'
+        })
+    }
+})
+
+router.post("/add", upload.single('avatar'), async (req, res) => {
+    var avatarPath = "";
+    if (req.file) {
+        const filename = user + path.extname(req.file.originalname);
+        console.log(filename);
+        avatarPath = ref(storage, '/avatar/' + filename);
+    } else {
+        avatarPath = "gs://tch2202-a782d.appspot.com/avatar/default.jpg"
+    }
+
     var user = new User(
         req.body.department_id,
         req.body.username,
@@ -70,12 +88,18 @@ router.post("/add", async (req, res) => {
         req.body.role,
         req.body.phone,
         req.body.stat,
-        req.body.avatar,
+        avatarPath,
         req.body.email
     );
+
     var result = await register(user);
+
+    if (result.code === 200) {
+        uploadBytes(avatarPath, req.file.buffer);
+    }
+
     res.status(result.code).json({
-        message: "User added, ID: " + result.message,
+        message: result.message,
     });
 });
 
