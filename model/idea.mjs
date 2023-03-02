@@ -30,7 +30,7 @@ export class Idea {
             json.writer_id,
             json.approver_id,
             json.post_date,
-            json.approved_datem,
+            json.approved_date,
             json.category,
             json.content,
             json.file,
@@ -56,6 +56,19 @@ export class Idea {
             is_anonymous: this.is_anonymous,
         };
     }
+
+    toCSV() {
+        return this.writer_id + "\t" + this.approver_id + "\t" + this.post_date + "\t"
+            + this.approved_date + "\t"
+            + this.category + "\t"
+            + this.content + "\t"
+            + (this.file === undefined || this.file === "" ? "No files attached" : this.file) + "\t"
+            + this.thread + "\t"
+            + this.visit_count + "\t"
+            + this.stat + "\t"
+            + this.is_anonymous + "\n"
+    }
+
 }
 
 const idea_status = ["Open", "Closed", "Expired"];

@@ -1,6 +1,7 @@
 import express from "express";
 import {
     addDocument,
+    fetchAllMatchingDocuments,
     fetchDocumentById,
     updateDocument,
 } from "../service/firebaseHelper.mjs";
@@ -9,6 +10,8 @@ import * as Constants from "../utils/constants.mjs";
 import { zip } from "zip-a-folder";
 import * as path from "path";
 import { containsRole } from "../service/tokenAuth.mjs";
+import { appendFileSync } from 'fs';
+import fs from "fs";
 
 const router = express.Router();
 
@@ -40,25 +43,35 @@ router.post('/createThread', async (req, res) => {
     }
 })
 
-router.get("/", async (req, res) => {
+router.get("/createThreadReport", async (req, res) => {
     const id = req.query.thread;
     var thread = await fetchDocumentById('thread', id);
     var currentDateTime = new Date();
-    console.log(currentDateTime.getTime() / 1000);
     if (!thread) {
         res.status(300).send({
             message: 'Thread does not exist!'
         })
     }
     else if (thread.data().endDate > currentDateTime.getTime() / 1000) {
-        console.log(thread.data().endDate);
         res.status(300).send({
             message: 'Not yet expired!'
         });
     } else {
-        console.log(thread.data().endDate);
+        const ideas = await fetchAllMatchingDocuments('Idea', 'thread', id);
+        var dir = path.resolve() + "/summary_file/csv/";
+
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
+        }
+
+        var fileName = dir + 'Thread Summary-' + id + ".csv";
+        appendFileSync(fileName, "Writer Id\tApprover Id\tPost Date\tApproved Date\tCategory\tContent\tFile\tThread ID\tVisit Count\tStatus\tIs_anonymous\n");
+        for (let i = 0; i < ideas.length; i++) {
+            appendFileSync(fileName, Idea.fromJson(ideas[i].data()).toCSV());
+        }
+
         res.status(300).send({
-            message: 'You can download now!'
+            message: 'You can download now!',
         });
     }
 });
