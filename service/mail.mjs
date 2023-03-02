@@ -1,5 +1,5 @@
 import nodeMailer from "nodemailer";
-import * as constants from "./constants.mjs";
+import * as constants from "../utils/constants.mjs";
 
 const transporter = nodeMailer.createTransport({
     port: 465,

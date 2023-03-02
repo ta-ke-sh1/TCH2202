@@ -1,11 +1,10 @@
-export class React {
-    constructor (id, reaction) {
-        this.id = id;
+export class Reaction {
+    constructor (reaction) {
         this.reaction = reaction;
     }
 
-    static fromJson(json, id) {
-        return new React(id, json.reaction);
+    static fromJson(json) {
+        return new React(json.reaction);
     }
 
     toJson() {

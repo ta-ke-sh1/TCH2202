@@ -10,10 +10,10 @@ import {
     fetchAllMatchingDocumentsWithinRange,
 } from "../service/firebaseHelper.mjs";
 import { Idea } from "../model/idea.mjs";
-import * as Constants from "../service/constants.mjs";
+import * as Constants from "../utils/constants.mjs";
 import { sendMail } from "../service/mail.mjs";
 import { containsRole } from "../service/tokenAuth.mjs";
-import { addMockIdeas } from "../utils/mockHelper.mjs";
+import { addMockComments, addMockIdeas, addMockReaction, clearDocument } from "../utils/mockHelper.mjs";
 import * as path from "path";
 
 import multer from "multer";
@@ -72,20 +72,6 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/approve", async (req, res) => {
-    const id = req.query.post;
-    var idea = Idea.fromJson(await fetchDocumentById(collectionRef, id));
-
-    if (idea === null || idea === undefined) {
-        res.status(300).send({ message: 'Idea does not exists. Id: ' + id });
-    } else {
-        idea.stat = 'Approved';
-        await updateDocument(collectionRef, id, idea);
-        res.status(200).send({ message: 'Idea approved. Id: ' + id });
-    }
-
-});
-
 router.post("/test", containsRole("Admin"), async (req, res) => {
     const receiver = req.body.email;
     var today = new Date();
@@ -108,16 +94,27 @@ router.post("/test", containsRole("Admin"), async (req, res) => {
     });
 });
 
-router.get("/addMock", async (req, res) => {
-    addMockIdeas();
+router.get("/clearMock", async (req, res) => {
+    clearDocument('Reaction');
     res.status(200).send({
         success: true,
         code: 200,
-        message: "40 new ideas added",
+        message: "All ideas cleared",
+    });
+});
+
+router.get("/addMock", async (req, res) => {
+    var count = parseInt(req.query.count)
+    addMockReaction(count);
+    res.status(200).send({
+        success: true,
+        code: 200,
+        message: count + " new ideas added",
     });
 });
 
 router.get("/sort", async (req, res) => {
+    const thread = req.query.thread;
     const startDate = req.query.startDate;
     const endDate = req.query.endDate;
     const sort = req.query.sort;
@@ -126,6 +123,7 @@ router.get("/sort", async (req, res) => {
     var ideas = [];
     const docs = await fetchAllMatchingDocumentsWithinRange(
         collectionRef,
+        thread,
         startDate,
         endDate
     );
@@ -196,6 +194,7 @@ router.post("/add", upload.array("items", 10), async (req, res) => {
     for (let i = 0; i < req.files.length; i++) {
         fileNames.push(req.files[i].filename);
     }
+
     var idea = new Idea(
         req.body.writer_id,
         req.body.approver_id,
@@ -217,13 +216,13 @@ router.post("/add", upload.array("items", 10), async (req, res) => {
     }
     await addDocument(collectionRef, idea);
 
-    // const receiver = req.body.approver_id;
-    // sendMail(
-    //     receiver,
-    //     "New post added",
-    //     "Sender: " +
-    //         req.body.writer_id
-    // );
+    const receiver = req.body.approver_id;
+    sendMail(
+        receiver,
+        "New post added",
+        "Sender: " +
+        req.body.writer_id
+    );
     res.status(200).send({
         success: true,
         message: idea,

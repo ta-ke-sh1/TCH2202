@@ -3,13 +3,11 @@ import cors from "cors";
 import departmentController from "./controllers/departmentController.mjs";
 import ideaController from "./controllers/ideaController.mjs";
 import userController from "./controllers/userController.mjs";
+import adminController from "./controllers/adminController.mjs";
 import commentController from "./controllers/commentController.mjs";
 import { authorize, containsRole } from "./service/tokenAuth.mjs";
 import { isExists } from "./service/tokenAuth.mjs";
 import jwt from "jsonwebtoken";
-import * as path from "path";
-import * as fs from "fs";
-import { zip } from "zip-a-folder";
 
 const app = express();
 
@@ -35,6 +33,8 @@ app.use("/idea", ideaController);
 app.use("/user", userController);
 
 app.use("/comment", commentController);
+
+app.use("/admin", adminController);
 
 app.post("/login", async (req, res) => {
     const username = req.body.username;
@@ -84,22 +84,6 @@ app.get("/", cors(), containsRole("Admin"), async (req, res) => {
         code: 200,
         message: req.decodedToken,
     });
-});
-
-app.get("/test", cors(), async (req, res) => {
-    console.log(req.get("Refresh"));
-    res.status(200).json(req.cookies);
-});
-
-app.get("/zipDirectory", cors(), async (req, res) => {
-    var _out =
-        path.resolve() +
-        "\\summary_file\\summary" +
-        new Date().toJSON().slice(0, 10).replace(/-/g, "-") +
-        ".zip";
-    var _in = path.resolve() + "\\assets\\files\\";
-    await zip(_in, _out);
-    res.status(200).download(_out);
 });
 
 const PORT = process.env.PORT || 5000;

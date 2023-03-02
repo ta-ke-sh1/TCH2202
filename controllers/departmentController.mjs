@@ -7,7 +7,7 @@ import {
     updateDocument,
 } from "../service/firebaseHelper.mjs";
 import { Department } from "../model/department.mjs";
-import * as Constants from "../service/constants.mjs";
+import * as Constants from "../utils/constants.mjs";
 
 const router = express.Router();
 const collection = Constants.DepartmentRepository;
@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/get", async (req, res) => {});
+router.get("/get", async (req, res) => { });
 
 router.post("/add", async (req, res) => {
     var department = new Department(null, req.body.name, 0);

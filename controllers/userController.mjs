@@ -7,7 +7,7 @@ import {
 } from "../service/firebaseHelper.mjs";
 import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
-import * as Constants from "../service/constants.mjs";
+import * as Constants from "../utils/constants.mjs";
 import bcrypt from "bcryptjs";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 import * as path from "path";
@@ -61,7 +61,6 @@ router.post('/testFirestoreStorage', upload.single('avatar'), async (req, res) =
                 message: 'Avatar saved to ' + storageRef
             })
         })
-
     } else {
         res.status(300).send({
             message: 'no files'
@@ -117,23 +116,34 @@ router.get("/addMock", async (req, res) => {
     });
 });
 
-router.post("/edit", async (req, res) => {
-    var user = new User(
-        req.body.id,
-        req.body.department_id,
-        req.body.username,
-        req.body.password,
-        req.body.fullName,
-        req.body.dob,
-        req.body.role,
-        req.body.phone,
-        req.body.stat,
-        req.body.email
-    );
-    const respond = await updateDocument(collectionRef, user.id, user);
-    res.status(respond.code).send({
-        message: respond.message,
-    });
+router.post("/edit", upload.single('avatar'), async (req, res) => {
+    var user = await fetchDocumentById(collectionRef, req.body.id);
+
+    if (!user) {
+        res.status(300).send({
+            message: 'User doesn\'t exists!',
+        })
+    } else {
+        var updateObj = {
+            department_id: req.body.department_id,
+            fullName: req.body.fullName,
+            dob: req.body.dob,
+            role: req.body.role,
+            stat: req.body.stat,
+            email: req.body.email,
+        }
+
+        if (req.file) {
+            const filename = user.id + path.extname(req.file.originalname);
+            console.log(filename);
+            updateObj.avatar = ref(storage, '/avatar/' + filename);
+        }
+
+        const respond = await updateDocument(collectionRef, req.body.id, updateObj);
+        res.status(respond.code).send({
+            message: respond.message,
+        });
+    }
 });
 
 router.get("/delete", async (req, res) => {

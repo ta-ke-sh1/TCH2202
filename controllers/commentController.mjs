@@ -7,7 +7,7 @@ import {
     updateDocument,
 } from "../service/firebaseHelper.mjs";
 import { Comment } from "../model/comment.mjs";
-import * as Constants from "../service/constants.mjs";
+import * as Constants from "../utils/constants.mjs";
 
 const router = express.Router();
 const collection = Constants.CommentRepository;

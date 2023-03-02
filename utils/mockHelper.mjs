@@ -1,7 +1,7 @@
 import { Idea } from "../model/idea.mjs";
 import { getRndInteger } from "./utils.mjs";
 import { uniqueNamesGenerator, names } from "unique-names-generator";
-import * as Constants from "../service/constants.mjs";
+import * as Constants from "./constants.mjs";
 import { initializeApp } from "firebase/app";
 import {
     writeBatch,
@@ -10,9 +10,11 @@ import {
     collection,
     addDoc,
 } from "firebase/firestore";
-import { fetchAllDocuments } from "../service/firebaseHelper.mjs";
+import { fetchAllDocuments, updateDocument } from "../service/firebaseHelper.mjs";
 import bcrypt from 'bcryptjs';
 import { User } from "../model/user.mjs";
+import { Comment } from '../model/comment.mjs';
+import { Reaction } from '../model/react.mjs';
 
 const app = initializeApp(Constants.firebaseConfig);
 const db = getFirestore(app);
@@ -71,7 +73,7 @@ async function addMockUsers() {
     await batch.commit();
 }
 
-async function addMockIdeas() {
+async function addMockIdeas(number) {
     const categories = {
         1: "6K2FKDZrQFqBMuTGfWbF",
         2: "6jW18cQZTepmgC6bwM3w",
@@ -79,6 +81,13 @@ async function addMockIdeas() {
         4: "Rl2zj0QFjr5mzrxdufxx",
         5: "lzeroeitwiyxfE9c46LA",
     };
+
+    const threads = {
+        1: "a4Rht41692uAFZ3vG8Ow",
+        2: "iXm24LpgFaLbrawknfoU",
+        3: "kz2B0joetInmYBeFynch",
+        4: "pd03HIB3PRNO02Y3NrgO",
+    }
 
     const users = {
         1: "pepievelyn",
@@ -93,20 +102,50 @@ async function addMockIdeas() {
         10: "rozaliedrucy",
     };
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < number; i++) {
         var idea = new Idea(
             users[getRndInteger(1, 10)],
             "admin",
+            "2023/3/" + getRndInteger(10, 15),
+            "2023/3/" + getRndInteger(15, 20),
             categories[getRndInteger(1, 5)],
             loremIpsum,
             "",
-            "2023" + "/" + getRndInteger(1, 12) + "/" + getRndInteger(1, 30),
-            "2023" + "/" + getRndInteger(1, 12) + "/" + getRndInteger(1, 30),
+            threads[getRndInteger(1, 4)],
             0,
             "Approved",
             false
         );
         await addDoc(collection(db, ideaCollectionRef), idea.toJson());
+    }
+}
+
+async function addMockComments(number) {
+    var ideas = await fetchAllDocuments('Idea');
+    var users = await fetchAllDocuments('User');
+    for (var i = 0; i < number; i++) {
+        var comment = new Comment(
+            ideas[getRndInteger(0, ideas.length - 1)].id,
+            users[getRndInteger(0, users.length - 1)].id,
+            "Lorem ipsum sit dolor",
+            '2023/3/2',
+            0
+        )
+        await addDoc(collection(db, 'Comment'), comment.toJson());
+    }
+}
+
+async function addMockReaction(number) {
+    var ideas = await fetchAllDocuments('Idea');
+    var comments = await fetchAllDocuments('Comment');
+    var users = await fetchAllDocuments('User');
+    for (var i = 0; i < number; i++) {
+        var ideaOrCommnent = getRndInteger(0, 1) === 1;
+        var id = ideaOrCommnent ? ideas[getRndInteger(0, ideas.length - 1)].id + "-" + users[getRndInteger(0, users.length - 1)].id
+            :
+            comments[getRndInteger(0, comments.length - 1)].id + "-" + users[getRndInteger(0, users.length - 1)].id;
+        var reaction = new Reaction(ideaOrCommnent ? -1 : 1);
+        await updateDocument('Reaction', id, reaction);
     }
 }
 
@@ -125,4 +164,4 @@ async function clearDocument(collection) {
     await batch.commit();
 }
 
-export { addMockIdeas, addMockUsers, clearDocument };
+export { addMockIdeas, addMockUsers, addMockComments, addMockReaction, clearDocument };

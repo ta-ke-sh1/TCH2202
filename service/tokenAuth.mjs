@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, getDoc, doc, setDoc } from "firebase/firestore";
-import * as constants from "./constants.mjs";
+import * as constants from "../utils/constants.mjs";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { User } from "../model/user.mjs";

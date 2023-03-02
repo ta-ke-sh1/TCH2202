@@ -1,23 +1,19 @@
 export class Comment {
-    constructor(id, idea_id, user_id, content, date, isAnonymous, react) {
-        this.id = id;
+    constructor (idea_id, user_id, content, date, isAnonymous) {
         this.idea_id = idea_id;
         this.user_id = user_id;
         this.content = content;
         this.date = date;
         this.isAnonymous = isAnonymous;
-        this.react = react;
     }
 
-    static fromJson(json, docId) {
+    static fromJson(json) {
         return new Comment(
-            docId,
             json.idea_id,
             json.user_id,
             json.content,
             json.date,
             json.isAnonymous,
-            json.react
         );
     }
 
@@ -28,7 +24,6 @@ export class Comment {
             content: this.content,
             date: this.date,
             isAnonymous: this.isAnonymous,
-            react: this.react,
         };
     }
 }

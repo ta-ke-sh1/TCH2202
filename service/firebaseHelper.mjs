@@ -12,7 +12,7 @@ import {
     query,
     orderBy,
 } from "firebase/firestore";
-import * as constants from "./constants.mjs";
+import * as constants from "../utils/constants.mjs";
 
 const app = initializeApp(constants.firebaseConfig);
 const db = getFirestore(app);
@@ -26,10 +26,11 @@ const fetchAllDocuments = async (document) => {
     return documents;
 };
 
-const fetchAllMatchingDocumentsWithinRange = async (document, start, end) => {
+const fetchAllMatchingDocumentsWithinRange = async (document, thread, start, end) => {
     var documents = [];
     const q = query(
         collection(db, document),
+        where("thread", "==", thread),
         where("post_date", ">=", start),
         where("post_date", "<=", end)
     );
@@ -88,11 +89,9 @@ const deleteDocument = async (collectionRef, id) => {
 };
 
 const updateDocument = async (collectionRef, id, update_object) => {
-    await setDoc(
+    await updateDoc(
         doc(db, collectionRef, id),
-        update_object.toJson(),
-        { capital: true },
-        { merged: true }
+        update_object,
     );
     return {
         code: 200,
