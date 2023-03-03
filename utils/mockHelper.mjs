@@ -75,11 +75,11 @@ async function addMockUsers() {
 
 async function addMockIdeas(number) {
     const categories = {
-        1: "6K2FKDZrQFqBMuTGfWbF",
-        2: "6jW18cQZTepmgC6bwM3w",
-        3: "80rj9FwqP4veSRah2qHk",
-        4: "Rl2zj0QFjr5mzrxdufxx",
-        5: "lzeroeitwiyxfE9c46LA",
+        1: "Teaching Quality",
+        2: "Scheduling",
+        3: "Equipment",
+        4: "Human Resources",
+        5: "Funding",
     };
 
     const threads = {
@@ -108,7 +108,8 @@ async function addMockIdeas(number) {
             "admin",
             "2023/3/" + getRndInteger(10, 15),
             "2023/3/" + getRndInteger(15, 20),
-            categories[getRndInteger(1, 5)],
+            "[" + categories[getRndInteger(1, 5)] + "]",
+            "Lorem Ipsum Sit Dolor",
             loremIpsum,
             "",
             threads[getRndInteger(1, 4)],

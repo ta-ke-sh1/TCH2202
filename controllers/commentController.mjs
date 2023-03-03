@@ -1,5 +1,6 @@
 import express from "express";
 import {
+    fetchAllMatchingDocuments,
     fetchAllDocuments,
     fetchDocumentById,
     addDocument,
@@ -10,14 +11,14 @@ import { Comment } from "../model/comment.mjs";
 import * as Constants from "../utils/constants.mjs";
 
 const router = express.Router();
-const collection = Constants.CommentRepository;
+const collectionRef = Constants.CommentRepository;
 
 router.get("/", async (req, res) => {
+    const id = req.query.id;
     const comments = [];
-    var snapshots = await fetchAllDocuments(collection);
-    console.log("Comment Page");
+    var snapshots = await fetchAllMatchingDocuments(collectionRef, 'idea_id', id);
     snapshots.forEach((snapshot) => {
-        comments.push(Comment.fromJson(snapshot.data(), snapshot.id));
+        comments.push({ data: Comment.fromJson(snapshot.data()), id: snapshot.id });
     });
     res.send(comments);
 });

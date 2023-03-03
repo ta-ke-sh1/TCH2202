@@ -5,6 +5,7 @@ export class Idea {
         post_date,
         approved_date,
         category,
+        title,
         content,
         file,
         thread,
@@ -17,7 +18,8 @@ export class Idea {
         this.post_date = post_date;
         this.approved_date = approved_date;
         this.category = category;
-        this.content = content;
+        this.title = title,
+            this.content = content;
         this.file = file;
         this.thread = thread;
         this.visit_count = visit_count;
@@ -32,6 +34,7 @@ export class Idea {
             json.post_date,
             json.approved_date,
             json.category,
+            json.title,
             json.content,
             json.file,
             json.thread,
@@ -47,6 +50,7 @@ export class Idea {
             approver_id: this.approver_id,
             post_date: this.post_date,
             approved_date: this.approved_date,
+            title: this.title,
             category: this.category,
             content: this.content,
             file: this.file,
@@ -61,6 +65,7 @@ export class Idea {
         return this.writer_id + "\t" + this.approver_id + "\t" + this.post_date + "\t"
             + this.approved_date + "\t"
             + this.category + "\t"
+            + this.title + "\t"
             + this.content + "\t"
             + (this.file === undefined || this.file === "" ? "No files attached" : this.file) + "\t"
             + this.thread + "\t"

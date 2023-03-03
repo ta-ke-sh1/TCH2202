@@ -57,7 +57,6 @@ const fetchDocumentById = async (collectionRef, id) => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            console.log("fetched");
             return docSnap;
         }
         return null;

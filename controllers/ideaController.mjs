@@ -48,27 +48,71 @@ router.get('/react', async (req, res) => {
     res.status(200).send({ message: 'reacted' });
 })
 
-router.get("/", async (req, res) => {
+router.get('/threads', async (req, res) => {
+    var result = [];
+    var threads = await fetchAllDocuments('thread');
+    const id = req.query.id;
+    if (id) {
+        var snapshots = await fetchDocumentById('thread', id);
+        if (snapshots) {
+            res.status(200).send(snapshots.data());
+        } else {
+            res.status(400).send({
+                success: false,
+                code: 400,
+                message: "Document does not exist!",
+            });
+        }
+    } else {
+        for (let i = 0; i < threads.length; i++) {
+            result.push({
+                id: threads[i].id,
+                name: threads[i].data().name,
+                startDate: threads[i].data().startDate,
+                endDate: threads[i].data().endDate,
+                description: threads[i].data().description
+            })
+        }
+        res.status(200).send({ message: 'fetched all threads', threads: result });
+    }
+
+})
+
+router.get('/fetch', async (req, res) => {
     const id = req.query.id;
     if (id) {
         var snapshot = await fetchDocumentById(collectionRef, id);
         if (snapshot) {
-            var idea = Idea.fromJson(snapshot.data(), snapshot.id);
-            res.status(200).send(idea);
+            res.status(200).send(snapshot.data());
+        } else {
+            res.status(400).send({ message: 'Document does not exists!' });
         }
-        res.status(400).send({
-            success: false,
-            code: 400,
-            message: "Document does not exist!",
-        });
     } else {
-        const Ideas = [];
-        var snapshots = await fetchAllDocuments(collectionRef);
-        console.log("Idea Page");
-        snapshots.forEach((snapshot) => {
-            Ideas.push(Idea.fromJson(snapshot.data(), snapshot.id));
+        res.status(400).send({ message: 'Document does not exists!' });
+    }
+})
+
+router.get("/", async (req, res) => {
+    const id = req.query.id;
+    if (id) {
+        var snapshots = await fetchAllMatchingDocuments(collectionRef, 'thread', id);
+        if (snapshots) {
+            const ideas = [];
+            snapshots.forEach((snapshot) => {
+                ideas.push({ idea: Idea.fromJson(snapshot.data()), id: snapshot.id });
+            })
+            res.status(200).send(ideas);
+        } else {
+            res.status(400).send({
+                success: false,
+                code: 400,
+                message: "Document does not exist!",
+            });
+        }
+    } else {
+        res.status(300).send({
+            message: 'No thread id was provided'
         });
-        res.status(200).send(Ideas);
     }
 });
 
@@ -95,7 +139,7 @@ router.post("/test", containsRole("Admin"), async (req, res) => {
 });
 
 router.get("/clearMock", async (req, res) => {
-    clearDocument('Reaction');
+    clearDocument('Comment');
     res.status(200).send({
         success: true,
         code: 200,
@@ -105,7 +149,7 @@ router.get("/clearMock", async (req, res) => {
 
 router.get("/addMock", async (req, res) => {
     var count = parseInt(req.query.count)
-    addMockReaction(count);
+    addMockComments(100);
     res.status(200).send({
         success: true,
         code: 200,
