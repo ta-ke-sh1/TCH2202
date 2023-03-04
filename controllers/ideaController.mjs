@@ -70,7 +70,8 @@ router.get('/threads', async (req, res) => {
                 name: threads[i].data().name,
                 startDate: threads[i].data().startDate,
                 endDate: threads[i].data().endDate,
-                description: threads[i].data().description
+                description: threads[i].data().description,
+                ideaCount: threads[i].data().ideaCount
             })
         }
         res.status(200).send({ message: 'fetched all threads', threads: result });
