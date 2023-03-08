@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
-    var snapshot = await fetchDocumentById(collection, id);
+    var snapshot = await fetchDocumentById(collectionRef, id);
     var dept = Comment.fromJson(snapshot.data(), snapshot.id);
     res.send(dept);
 });
@@ -41,7 +41,7 @@ router.post("/add", async (req, res) => {
         req.body.react
     );
     console.log(comment);
-    await addDocument(collection, comment);
+    await addDocument(collectionRef, comment);
     console.log("Comment added, ID: " + req.body.id);
 });
 
@@ -55,7 +55,7 @@ router.post("/edit", async (req, res) => {
         req.body.isAnonymous,
         req.body.react
     );
-    const respond = await updateDocument(collection, comment.id, comment);
+    const respond = await updateDocument(collectionRef, comment.id, comment);
     console.log("Comment updated, ID: " + req.body.id);
     res.status(respond.code).send({
         message: respond.message,
@@ -63,7 +63,7 @@ router.post("/edit", async (req, res) => {
 });
 
 router.get("/delete", async (req, res) => {
-    const respond = await deleteDocument(collection, req.body.id);
+    const respond = await deleteDocument(collectionRef, req.body.id);
     console.log("Comment deleted, ID: " + req.body.id);
     res.status(respond.code).send({
         message: respond.message,

@@ -5,6 +5,9 @@ import ideaController from "./controllers/ideaController.mjs";
 import userController from "./controllers/userController.mjs";
 import adminController from "./controllers/adminController.mjs";
 import commentController from "./controllers/commentController.mjs";
+import categoryController from './controllers/categoryController.mjs';
+import reactionController from './controllers/reactionController.mjs';
+import testController from './controllers/testController.mjs';
 import { authorize, containsRole } from "./service/tokenAuth.mjs";
 import { isExists } from "./service/tokenAuth.mjs";
 import jwt from "jsonwebtoken";
@@ -35,6 +38,12 @@ app.use("/user", userController);
 app.use("/comment", commentController);
 
 app.use("/admin", adminController);
+
+app.use("/category", categoryController);
+
+app.use("/reaction", reactionController);
+
+app.use("/test", testController);
 
 app.post("/login", async (req, res) => {
     const username = req.body.username;

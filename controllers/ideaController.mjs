@@ -36,21 +36,10 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 const collectionRef = Constants.IdeaRepository;
-const reactionRef = Constants.ReactionRepository;
 
-router.get('/react', async (req, res) => {
-    const idea = req.query.idea;
-    const user = req.query.user;
-    const reaction = parseInt(req.query.reaction);
-
-    await updateDocument(reactionRef, idea + "-" + user, new React(idea + "-" + user, reaction));
-
-    res.status(200).send({ message: 'reacted' });
-})
 
 router.get('/threads', async (req, res) => {
     var result = [];
-    var threads = await fetchAllDocuments('thread');
     const id = req.query.id;
     if (id) {
         var snapshots = await fetchDocumentById('thread', id);
@@ -64,6 +53,7 @@ router.get('/threads', async (req, res) => {
             });
         }
     } else {
+        var threads = await fetchAllDocuments('thread');
         for (let i = 0; i < threads.length; i++) {
             result.push({
                 id: threads[i].id,
@@ -117,46 +107,6 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/test", containsRole("Admin"), async (req, res) => {
-    const receiver = req.body.email;
-    var today = new Date();
-    var date =
-        today.getFullYear() +
-        "-" +
-        (today.getMonth() + 1) +
-        "-" +
-        today.getDate() +
-        " : " +
-        today.getHours() +
-        ":" +
-        today.getMinutes() +
-        ":" +
-        today.getSeconds();
-    sendMail(receiver, "New post added", "Timeframe: " + date);
-    res.status(200).send({
-        success: true,
-        message: "Email sent to " + receiver,
-    });
-});
-
-router.get("/clearMock", async (req, res) => {
-    clearDocument('Comment');
-    res.status(200).send({
-        success: true,
-        code: 200,
-        message: "All ideas cleared",
-    });
-});
-
-router.get("/addMock", async (req, res) => {
-    var count = parseInt(req.query.count)
-    addMockComments(100);
-    res.status(200).send({
-        success: true,
-        code: 200,
-        message: count + " new ideas added",
-    });
-});
 
 router.get("/sort", async (req, res) => {
     const thread = req.query.thread;
@@ -235,6 +185,7 @@ router.get("/category", async (req, res) => {
 });
 
 router.post("/add", upload.array("items", 10), async (req, res) => {
+    console.log('new item request');
     var fileNames = [];
     for (let i = 0; i < req.files.length; i++) {
         fileNames.push(req.files[i].filename);
@@ -243,11 +194,13 @@ router.post("/add", upload.array("items", 10), async (req, res) => {
     var idea = new Idea(
         req.body.writer_id,
         req.body.approver_id,
+        req.body.post_date,
+        req.body.approved_date,
         req.body.category,
+        req.body.title,
         req.body.content,
         fileNames,
-        req.body.post_date,
-        req.body.expiration_date,
+        req.body.thread,
         req.body.visit_count,
         req.body.stat,
         req.body.is_anonymous
@@ -262,12 +215,12 @@ router.post("/add", upload.array("items", 10), async (req, res) => {
     await addDocument(collectionRef, idea);
 
     const receiver = req.body.approver_id;
-    sendMail(
-        receiver,
-        "New post added",
-        "Sender: " +
-        req.body.writer_id
-    );
+    // sendMail(
+    //     receiver,
+    //     "New post added",
+    //     "Sender: " +
+    //     req.body.writer_id
+    // );
     res.status(200).send({
         success: true,
         message: idea,
