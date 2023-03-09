@@ -109,7 +109,7 @@ const authorize = async (username, password) => {
             role: user.data().role,
         },
         access_secret,
-        { expiresIn: "10m" }
+        { expiresIn: "2d" }
     );
 
     var refresh_secret = process.env.JWT_SECRET_REFRESH;

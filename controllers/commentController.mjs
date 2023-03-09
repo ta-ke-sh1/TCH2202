@@ -16,9 +16,16 @@ const collectionRef = Constants.CommentRepository;
 router.get("/", async (req, res) => {
     const id = req.query.id;
     const comments = [];
-    var snapshots = await fetchAllMatchingDocuments(collectionRef, 'idea_id', id);
+    var snapshots = await fetchAllMatchingDocuments(
+        collectionRef,
+        "idea_id",
+        id
+    );
     snapshots.forEach((snapshot) => {
-        comments.push({ data: Comment.fromJson(snapshot.data()), id: snapshot.id });
+        comments.push({
+            data: Comment.fromJson(snapshot.data()),
+            id: snapshot.id,
+        });
     });
     res.send(comments);
 });
@@ -32,17 +39,13 @@ router.get("/", async (req, res) => {
 
 router.post("/add", async (req, res) => {
     var comment = new Comment(
-        null,
         req.body.idea_id,
         req.body.user_id,
         req.body.content,
         req.body.date,
-        req.body.isAnonymous,
-        req.body.react
+        req.body.isAnonymous
     );
-    console.log(comment);
     await addDocument(collectionRef, comment);
-    console.log("Comment added, ID: " + req.body.id);
 });
 
 router.post("/edit", async (req, res) => {
@@ -63,8 +66,8 @@ router.post("/edit", async (req, res) => {
 });
 
 router.get("/delete", async (req, res) => {
-    const respond = await deleteDocument(collectionRef, req.body.id);
-    console.log("Comment deleted, ID: " + req.body.id);
+    const respond = await deleteDocument(collectionRef, req.query.id);
+    console.log("Comment deleted, ID: " + req.query.id);
     res.status(respond.code).send({
         message: respond.message,
     });

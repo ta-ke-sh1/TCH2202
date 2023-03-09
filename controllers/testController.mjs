@@ -5,13 +5,14 @@ import {
     fetchDocumentById,
     updateDocument,
 } from "../service/firebaseHelper.mjs";
-import { Idea } from "../model/idea.mjs";
 import * as Constants from "../utils/constants.mjs";
-import { zip } from "zip-a-folder";
-import * as path from "path";
 import { containsRole } from "../service/tokenAuth.mjs";
-import { appendFileSync } from 'fs';
-import fs from "fs";
+import {
+    addMockComments,
+    addMockIdeas,
+    addMockReaction,
+    clearDocument,
+} from "../utils/mockHelper.mjs";
 
 const router = express.Router();
 
@@ -38,7 +39,7 @@ router.post("/", containsRole("Admin"), async (req, res) => {
 });
 
 router.get("/clearMock", async (req, res) => {
-    clearDocument('Comment');
+    clearDocument("Comment");
     res.status(200).send({
         success: true,
         code: 200,
@@ -46,9 +47,29 @@ router.get("/clearMock", async (req, res) => {
     });
 });
 
-router.get("/addMock", async (req, res) => {
-    var count = parseInt(req.query.count)
+router.get("/addReaction", async (req, res) => {
+    var count = parseInt(req.query.count);
+    addMockReaction(100);
+    res.status(200).send({
+        success: true,
+        code: 200,
+        message: count + " new ideas added",
+    });
+});
+
+router.get("/addComments", async (req, res) => {
+    var count = parseInt(req.query.count);
     addMockComments(100);
+    res.status(200).send({
+        success: true,
+        code: 200,
+        message: count + " new ideas added",
+    });
+});
+
+router.get("/Ideas", async (req, res) => {
+    var count = parseInt(req.query.count);
+    addMockIdeas(100);
     res.status(200).send({
         success: true,
         code: 200,

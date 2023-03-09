@@ -7,6 +7,7 @@ import {
     doc,
     deleteDoc,
     collection,
+    updateDoc,
     getDoc,
     where,
     query,
@@ -26,7 +27,12 @@ const fetchAllDocuments = async (document) => {
     return documents;
 };
 
-const fetchAllMatchingDocumentsWithinRange = async (document, thread, start, end) => {
+const fetchAllMatchingDocumentsWithinRange = async (
+    document,
+    thread,
+    start,
+    end
+) => {
     var documents = [];
     const q = query(
         collection(db, document),
@@ -83,18 +89,23 @@ const deleteDocument = async (collectionRef, id) => {
     await deleteDoc(doc(db, collectionRef, id));
     return {
         code: 200,
-        message: "Deleted user with id: " + id,
+        message: "Deleted document with id: " + id,
+    };
+};
+
+const setDocument = async (collectionRef, id, set_object) => {
+    await setDoc(doc(db, collectionRef, id), set_object);
+    return {
+        code: 200,
+        message: "Set document with id: " + id,
     };
 };
 
 const updateDocument = async (collectionRef, id, update_object) => {
-    await updateDoc(
-        doc(db, collectionRef, id),
-        update_object,
-    );
+    await updateDoc(doc(db, collectionRef, id), update_object);
     return {
         code: 200,
-        message: "Updated user with id: " + id,
+        message: "Updated document with id: " + id,
     };
 };
 
@@ -106,4 +117,5 @@ export {
     addDocument,
     deleteDocument,
     updateDocument,
+    setDocument,
 };

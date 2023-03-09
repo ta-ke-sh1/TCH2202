@@ -13,7 +13,7 @@ import { Idea } from "../model/idea.mjs";
 import * as Constants from "../utils/constants.mjs";
 import { sendMail } from "../service/mail.mjs";
 import { containsRole } from "../service/tokenAuth.mjs";
-import { addMockComments, addMockIdeas, addMockReaction, clearDocument } from "../utils/mockHelper.mjs";
+
 import * as path from "path";
 
 import multer from "multer";
@@ -37,12 +37,11 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 const collectionRef = Constants.IdeaRepository;
 
-
-router.get('/threads', async (req, res) => {
+router.get("/threads", async (req, res) => {
     var result = [];
     const id = req.query.id;
     if (id) {
-        var snapshots = await fetchDocumentById('thread', id);
+        var snapshots = await fetchDocumentById("thread", id);
         if (snapshots) {
             res.status(200).send(snapshots.data());
         } else {
@@ -53,7 +52,7 @@ router.get('/threads', async (req, res) => {
             });
         }
     } else {
-        var threads = await fetchAllDocuments('thread');
+        var threads = await fetchAllDocuments("thread");
         for (let i = 0; i < threads.length; i++) {
             result.push({
                 id: threads[i].id,
@@ -61,37 +60,46 @@ router.get('/threads', async (req, res) => {
                 startDate: threads[i].data().startDate,
                 endDate: threads[i].data().endDate,
                 description: threads[i].data().description,
-                ideaCount: threads[i].data().ideaCount
-            })
+                ideaCount: threads[i].data().ideaCount,
+            });
         }
-        res.status(200).send({ message: 'fetched all threads', threads: result });
+        res.status(200).send({
+            message: "fetched all threads",
+            threads: result,
+        });
     }
+});
 
-})
-
-router.get('/fetch', async (req, res) => {
+router.get("/fetch", async (req, res) => {
     const id = req.query.id;
     if (id) {
         var snapshot = await fetchDocumentById(collectionRef, id);
         if (snapshot) {
             res.status(200).send(snapshot.data());
         } else {
-            res.status(400).send({ message: 'Document does not exists!' });
+            res.status(400).send({ message: "Document does not exists!" });
         }
     } else {
-        res.status(400).send({ message: 'Document does not exists!' });
+        res.status(400).send({ message: "Document does not exists!" });
     }
-})
+});
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
     if (id) {
-        var snapshots = await fetchAllMatchingDocuments(collectionRef, 'thread', id);
+        var snapshots = await fetchAllMatchingDocuments(
+            collectionRef,
+            "thread",
+            id
+        );
         if (snapshots) {
             const ideas = [];
             snapshots.forEach((snapshot) => {
-                ideas.push({ idea: Idea.fromJson(snapshot.data()), id: snapshot.id });
-            })
+                ideas.push({
+                    idea: Idea.fromJson(snapshot.data()),
+                    id: snapshot.id,
+                });
+            });
             res.status(200).send(ideas);
         } else {
             res.status(400).send({
@@ -102,11 +110,10 @@ router.get("/", async (req, res) => {
         }
     } else {
         res.status(300).send({
-            message: 'No thread id was provided'
+            message: "No thread id was provided",
         });
     }
 });
-
 
 router.get("/sort", async (req, res) => {
     const thread = req.query.thread;
@@ -185,7 +192,7 @@ router.get("/category", async (req, res) => {
 });
 
 router.post("/add", upload.array("items", 10), async (req, res) => {
-    console.log('new item request');
+    console.log("new item request");
     var fileNames = [];
     for (let i = 0; i < req.files.length; i++) {
         fileNames.push(req.files[i].filename);
