@@ -109,9 +109,12 @@ router.get("/", async (req, res) => {
             });
         }
     } else {
-        res.status(300).send({
-            message: "No thread id was provided",
+        const ideas = [];
+        var snapshots = await fetchAllDocuments(collectionRef);
+        snapshots.forEach((snapshot) => {
+            ideas.push(Idea.fromJson(snapshot.data()));
         });
+        res.status(200).send(ideas);
     }
 });
 

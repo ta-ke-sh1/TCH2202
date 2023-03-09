@@ -27,14 +27,17 @@ router.get("/", async (req, res) => {
     if (id) {
         var snapshot = await fetchDocumentById(collectionRef, id);
         if (snapshot) {
-            var dept = User.fromJson(snapshot.data(), snapshot.id);
-            res.status(200).send(dept);
+            var user = User.fromJson(snapshot.data(), snapshot.id);
+            res.status(200).send(user);
         }
-        res.status(400).send({
-            success: false,
-            code: 400,
-            message: "Document does not exist!",
-        });
+        else {
+            res.status(400).send({
+                success: false,
+                code: 400,
+                message: "Document does not exist!",
+            });
+        }
+
     } else {
         const users = [];
         var snapshots = await fetchAllDocuments(collectionRef);
