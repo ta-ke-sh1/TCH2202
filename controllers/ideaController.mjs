@@ -1,5 +1,4 @@
 import express from "express";
-import { initializeApp } from "firebase/app";
 import {
     fetchAllDocuments,
     fetchDocumentById,

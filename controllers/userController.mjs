@@ -9,18 +9,29 @@ import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
 import * as Constants from "../utils/constants.mjs";
 import bcrypt from "bcryptjs";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
-import * as path from "path";
-
 import { addMockUsers, clearDocument } from "../utils/mockHelper.mjs";
 
 const router = express.Router();
 const collectionRef = Constants.UserRepository;
-const storage = getStorage();
 
+import * as path from "path";
 import multer from "multer";
-var upload = multer({ storage: multer.memoryStorage() });
+import fs from "fs";
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        var dir = path.resolve() + "/assets/avatar/" + req.body.username;
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
+        }
+        cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+        cb(null, req.body.username + "_" + file.originalname);
+    },
+});
+
+const upload = multer({ storage: storage });
 
 router.get("/", async (req, res) => {
     const id = req.query.id;
@@ -29,15 +40,13 @@ router.get("/", async (req, res) => {
         if (snapshot) {
             var user = User.fromJson(snapshot.data(), snapshot.id);
             res.status(200).send(user);
-        }
-        else {
+        } else {
             res.status(400).send({
                 success: false,
                 code: 400,
                 message: "Document does not exist!",
             });
         }
-
     } else {
         const users = [];
         var snapshots = await fetchAllDocuments(collectionRef);
@@ -49,36 +58,12 @@ router.get("/", async (req, res) => {
     }
 });
 
-
-router.post('/testFirestoreStorage', upload.single('avatar'), async (req, res) => {
-    const user = req.body.user;
-    console.log(req.file);
-    if (req.file) {
-        const storage = getStorage();
-        const filename = user + path.extname(req.file.originalname);
-        console.log(filename);
-        const storageRef = ref(storage, '/avatar/' + filename);
-
-        uploadBytes(storageRef, req.file.buffer).then((snapshot) => {
-            res.status(200).send({
-                message: 'Avatar saved to ' + storageRef
-            })
-        })
-    } else {
-        res.status(300).send({
-            message: 'no files'
-        })
-    }
-})
-
-router.post("/add", upload.single('avatar'), async (req, res) => {
+router.post("/add", upload.single("avatar"), async (req, res) => {
     var avatarPath = "";
     if (req.file) {
-        const filename = user + path.extname(req.file.originalname);
-        console.log(filename);
-        avatarPath = ref(storage, '/avatar/' + filename);
+        avatarPath = req.file.path;
     } else {
-        avatarPath = "gs://tch2202-a782d.appspot.com/avatar/default.jpg"
+        avatarPath = "/avatar/default.jpg";
     }
 
     var user = new User(
@@ -95,10 +80,6 @@ router.post("/add", upload.single('avatar'), async (req, res) => {
     );
 
     var result = await register(user);
-
-    if (result.code === 200) {
-        uploadBytes(avatarPath, req.file.buffer);
-    }
 
     res.status(result.code).json({
         message: result.message,
@@ -119,13 +100,13 @@ router.get("/addMock", async (req, res) => {
     });
 });
 
-router.post("/edit", upload.single('avatar'), async (req, res) => {
+router.post("/edit", upload.single("avatar"), async (req, res) => {
     var user = await fetchDocumentById(collectionRef, req.body.id);
 
     if (!user) {
         res.status(300).send({
-            message: 'User doesn\'t exists!',
-        })
+            message: "User doesn't exists!",
+        });
     } else {
         var updateObj = {
             department_id: req.body.department_id,
@@ -134,15 +115,19 @@ router.post("/edit", upload.single('avatar'), async (req, res) => {
             role: req.body.role,
             stat: req.body.stat,
             email: req.body.email,
-        }
+        };
 
         if (req.file) {
             const filename = user.id + path.extname(req.file.originalname);
             console.log(filename);
-            updateObj.avatar = ref(storage, '/avatar/' + filename);
+            updateObj.avatar = ref(storage, "/avatar/" + filename);
         }
 
-        const respond = await updateDocument(collectionRef, req.body.id, updateObj);
+        const respond = await updateDocument(
+            collectionRef,
+            req.body.id,
+            updateObj
+        );
         res.status(respond.code).send({
             message: respond.message,
         });

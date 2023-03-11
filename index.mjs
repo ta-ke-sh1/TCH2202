@@ -5,9 +5,9 @@ import ideaController from "./controllers/ideaController.mjs";
 import userController from "./controllers/userController.mjs";
 import adminController from "./controllers/adminController.mjs";
 import commentController from "./controllers/commentController.mjs";
-import categoryController from './controllers/categoryController.mjs';
-import reactionController from './controllers/reactionController.mjs';
-import testController from './controllers/testController.mjs';
+import categoryController from "./controllers/categoryController.mjs";
+import reactionController from "./controllers/reactionController.mjs";
+import testController from "./controllers/testController.mjs";
 import { authorize, containsRole } from "./service/tokenAuth.mjs";
 import { isExists } from "./service/tokenAuth.mjs";
 import jwt from "jsonwebtoken";
@@ -95,7 +95,7 @@ app.get("/", cors(), containsRole("Admin"), async (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 9000;
 app.listen(PORT);
 console.log("Server is running! " + PORT);
 
