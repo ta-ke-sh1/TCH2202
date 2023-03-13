@@ -1,19 +1,107 @@
 import express from "express";
 import {
     addDocument,
+    fetchAllDocuments,
     fetchAllMatchingDocuments,
+    fetchAllMatchingDocumentsCount,
     fetchDocumentById,
     updateDocument,
 } from "../service/firebaseHelper.mjs";
 import { Idea } from "../model/idea.mjs";
-import * as Constants from "../utils/constants.mjs";
 import { zip } from "zip-a-folder";
 import * as path from "path";
 import { containsRole } from "../service/tokenAuth.mjs";
 import { appendFileSync } from 'fs';
 import fs from "fs";
+import { convertStringToArray } from "../utils/utils.mjs";
+import moment from 'moment';
 
 const router = express.Router();
+
+const collectionRef = 'Metrics';
+
+router.get('/statistic', async (req, res) => {
+    const duration = req.body.duration;
+    var ideaCount = [];
+    var commentCount = [];
+    var iteration = 7;
+    var ideas = [];
+
+    if (duration == 'month') {
+        iteration = 30;
+    }
+
+    const tags = await fetchAllDocuments('Category');
+    const tagMap = [];
+    for (let i = 0; i < tags.length; i++) {
+        if (!tagMap.find(e => e.id == tags[i].id)) {
+            tagMap.push({
+                id: tags[i].id,
+                count: 0
+            })
+        }
+    }
+
+    const departments = await fetchAllDocuments('Department');
+    const departmentMap = [];
+    for (let i = 0; i < departments.length; i++) {
+        if (!departmentMap.find(e => e.id == departments[i].id)) {
+            departmentMap.push({
+                id: departments[i].id,
+                name: departments[i].data().name,
+                count: 0
+            })
+        }
+    }
+    console.log(departmentMap);
+
+    for (let i = 0; i < iteration; i++) {
+        const d = moment().subtract(i, 'days').format('YYYY/M/D');
+        const i_count = await fetchAllMatchingDocuments('Idea', 'post_date', d);
+        const c_count = await fetchAllMatchingDocumentsCount('Comment', 'date', d);
+
+        ideas.push(i_count);
+        commentCount.push(c_count);
+    }
+
+    for (let i = 0; i < ideas.length; i++) {
+        if (ideas[i].length > 0) {
+            var sum = 0;
+            for (let j = 0; j < ideas[i].length; j++) {
+                sum += parseInt(ideas[i][j].data().visit_count);
+                var catList = convertStringToArray(ideas[i][j].data().category)
+
+                for (let k = 0; k < catList.length; k++) {
+                    var tag = tagMap.findIndex((obj => obj.id === catList[k]))
+                    tagMap[tag].count = tagMap[tag].count + 1;
+                }
+
+                var user = await fetchDocumentById('User', ideas[i][j].data().writer_id);
+                if (user !== null) {
+                    var index = departmentMap.findIndex((obj => obj.id === user.data().department_id))
+                    departmentMap[index].count = departmentMap[index].count + 1;
+                }
+            }
+            ideaCount.push(ideas[i].length);
+        } else {
+            ideaCount.push(0);
+        }
+    }
+
+    res.status(200).json({
+        ideas: ideaCount,
+        comments: commentCount,
+        tag_count: tagMap,
+        ideaByDepartment: departmentMap
+    });
+});
+
+router.get('/dashboard', async (req, res) => {
+    res.status(200).json({
+        a: 1,
+        b: 2
+    })
+});
 
 router.post('/createThread', async (req, res) => {
     const name = req.body.name;

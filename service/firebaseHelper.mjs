@@ -12,6 +12,7 @@ import {
     where,
     query,
     orderBy,
+    getCountFromServer,
 } from "firebase/firestore";
 import * as constants from "../utils/constants.mjs";
 
@@ -56,6 +57,13 @@ const fetchAllMatchingDocuments = async (document, criteria, keyword) => {
     });
     return documents;
 };
+
+const fetchAllMatchingDocumentsCount = async (document, criteria, keyword) => {
+    const q = query(collection(db, document), where(criteria, "==", keyword));
+    const snapshot = await getCountFromServer(q);
+    if (snapshot) return snapshot.data().count;
+    else return 0;
+}
 
 const fetchDocumentById = async (collectionRef, id) => {
     if (id != null) {
@@ -112,6 +120,7 @@ const updateDocument = async (collectionRef, id, update_object) => {
 export {
     fetchAllDocuments,
     fetchAllMatchingDocuments,
+    fetchAllMatchingDocumentsCount,
     fetchAllMatchingDocumentsWithinRange,
     fetchDocumentById,
     addDocument,

@@ -49,10 +49,10 @@ async function addMockUsers() {
             bcrypt.hashSync("123456", 10),
             name,
             getRndInteger(1990, 2004) +
-                "/" +
-                getRndInteger(1, 12) +
-                "/" +
-                getRndInteger(1, 30),
+            "/" +
+            getRndInteger(1, 12) +
+            "/" +
+            getRndInteger(1, 30),
             ["Staff"],
             "+840" + getRndInteger(30, 99) + getRndInteger(100000, 999999),
             "Activated",
