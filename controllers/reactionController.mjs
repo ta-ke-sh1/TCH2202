@@ -8,6 +8,7 @@ import {
 } from "../service/firebaseHelper.mjs";
 import * as Constants from "../utils/constants.mjs";
 import { Reaction } from "../model/react.mjs";
+import { isExists } from "../service/tokenAuth.mjs";
 
 const router = express.Router();
 const reactionRef = Constants.ReactionRepository;
@@ -17,9 +18,18 @@ router.get("/", async (req, res) => {
     const user = req.query.user;
     const reaction = parseInt(req.query.reaction);
 
+    const snapshot = await fetchDocumentById(
+        reactionRef,
+        user + "-" + document
+    );
+
     await setDocument(reactionRef, user + "-" + document, {
-        reaction: reaction,
-        idea: document,
+        reaction: snapshot
+            ? snapshot.data().reaction === reaction
+                ? 0
+                : reaction
+            : reaction,
+        document: document,
         user: user,
     });
 
