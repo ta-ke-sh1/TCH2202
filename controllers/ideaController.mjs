@@ -62,10 +62,7 @@ router.get("/threads", async (req, res) => {
                 ideaCount: threads[i].data().ideaCount,
             });
         }
-        res.status(200).send({
-            message: "fetched all threads",
-            threads: result,
-        });
+        res.status(200).json(result);
     }
 });
 
@@ -74,7 +71,7 @@ router.get("/fetch", async (req, res) => {
     if (id) {
         var snapshot = await fetchDocumentById(collectionRef, id);
         if (snapshot) {
-            res.status(200).send(snapshot.data());
+            res.status(200).json(snapshot.data());
         } else {
             res.status(400).send({ message: "Document does not exists!" });
         }
@@ -237,6 +234,19 @@ router.post("/add", upload.array("items", 10), async (req, res) => {
 
     console.log("Idea added, ID: " + req.body.id);
 });
+
+router.get("/accessed", async (req, res) => {
+    const id = req.query.id;
+    const idea = await fetchDocumentById(collectionRef, id);
+    if (idea) {
+        var i = idea.data();
+        i.visit_count = i.visit_count + 1;
+        await updateDocument(collectionRef, id, i)
+    }
+
+    res.status(200);
+});
+
 
 router.post("/edit", async (req, res) => {
     var idea = new Idea(
