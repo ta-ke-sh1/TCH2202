@@ -9,6 +9,7 @@ import {
 } from "../service/firebaseHelper.mjs";
 import { Comment } from "../model/comment.mjs";
 import * as Constants from "../utils/constants.mjs";
+import { updateDocumentMetrics } from "../service/metrics.mjs";
 
 const router = express.Router();
 const collectionRef = Constants.CommentRepository;
@@ -45,7 +46,9 @@ router.post("/add", async (req, res) => {
         req.body.date,
         req.body.isAnonymous
     );
-    await addDocument(collectionRef, comment);
+    const response = await addDocument(collectionRef, comment);
+    updateDocumentMetrics('Comment');
+    res.status(200).json(response);
 });
 
 router.post("/edit", async (req, res) => {

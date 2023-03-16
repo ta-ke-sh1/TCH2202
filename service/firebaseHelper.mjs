@@ -14,10 +14,58 @@ import {
     orderBy,
     getCountFromServer,
 } from "firebase/firestore";
+
 import * as constants from "../utils/constants.mjs";
 
 const app = initializeApp(constants.firebaseConfig);
 const db = getFirestore(app);
+
+const fetchDocumentWhereDocumentId = async (document, { isBefore, isAfter }) => {
+    var documents = [];
+
+    var q;
+
+    if (isAfter && isBefore) {
+        q = query(
+            collection(db, document),
+            where('__name__', "<=", isBefore),
+            where('__name__', ">=", isAfter)
+        );
+    }
+    else if (isBefore) {
+        q = query(
+            collection(db, document),
+            where('__name__', "<=", isBefore),
+        );
+    }
+    else if (isAfter) {
+        q = query(
+            collection(db, document),
+            where('__name__', ">=", isAfter),
+        );
+    } else {
+        q = query(
+            collection(db, document),
+        );
+    }
+
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+        documents.push(doc.data());
+    });
+    return documents;
+}
+// For 
+const fetchAllDateNestedDocuments = async (date, document) => {
+    const documents = [];
+    const docRef = collection(db, "Documents/", date, document)
+    const querySnapshot = await getDocs(docRef);
+    querySnapshot.forEach((doc) => {
+        documents.push(doc.data());
+    });
+    return documents;
+};
+
 
 const fetchAllDocuments = async (document) => {
     const documents = [];
@@ -118,6 +166,7 @@ const updateDocument = async (collectionRef, id, update_object) => {
 };
 
 export {
+    fetchAllDateNestedDocuments,
     fetchAllDocuments,
     fetchAllMatchingDocuments,
     fetchAllMatchingDocumentsCount,
@@ -127,4 +176,5 @@ export {
     deleteDocument,
     updateDocument,
     setDocument,
+    fetchDocumentWhereDocumentId,
 };

@@ -17,6 +17,7 @@ import * as path from "path";
 
 import multer from "multer";
 import fs from "fs";
+import { updateDocumentMetrics } from "../service/metrics.mjs";
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -221,17 +222,17 @@ router.post("/add", upload.array("items", 10), async (req, res) => {
     await addDocument(collectionRef, idea);
 
     const receiver = req.body.approver_id;
-    // sendMail(
-    //     receiver,
-    //     "New post added",
-    //     "Sender: " +
-    //     req.body.writer_id
-    // );
+    sendMail(
+        receiver,
+        "New post added",
+        "Sender: " +
+        req.body.writer_id
+    );
     res.status(200).send({
         success: true,
         message: idea,
     });
-
+    updateDocumentMetrics('Idea');
     console.log("Idea added, ID: " + req.body.id);
 });
 

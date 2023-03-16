@@ -20,7 +20,7 @@ const router = express.Router();
 
 const collectionRef = 'Metrics';
 
-router.get('/statistic', async (req, res) => {
+router.get('/popularTags', async (req, res) => {
     const duration = req.body.duration;
     var ideaCount = [];
     var commentCount = [];
@@ -69,7 +69,7 @@ router.get('/statistic', async (req, res) => {
             var sum = 0;
             for (let j = 0; j < ideas[i].length; j++) {
                 sum += parseInt(ideas[i][j].data().visit_count);
-                var catList = convertStringToArray(ideas[i][j].data().category)
+                var catList = ideas[i][j].data().category;
 
                 for (let k = 0; k < catList.length; k++) {
                     var tag = tagMap.findIndex((obj => obj.id === catList[k]))
@@ -89,8 +89,6 @@ router.get('/statistic', async (req, res) => {
     }
 
     res.status(200).json({
-        ideas: ideaCount,
-        comments: commentCount,
         tag_count: tagMap,
         ideaByDepartment: departmentMap
     });

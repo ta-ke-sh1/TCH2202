@@ -1,8 +1,9 @@
 export class Reaction {
-    constructor(reaction, user, document) {
+    constructor(reaction, user, document, datetime) {
         this.reaction = reaction;
         this.user = user;
         this.document = document;
+        this.datetime = datetime;
     }
 
     static fromJson(json) {
@@ -14,6 +15,7 @@ export class Reaction {
             reaction: this.reaction,
             user: this.user,
             document: this.document,
+            datetime: this.datetime,
         };
     }
 }

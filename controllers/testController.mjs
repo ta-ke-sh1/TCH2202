@@ -1,9 +1,7 @@
 import express from "express";
 import {
-    addDocument,
-    fetchAllMatchingDocuments,
-    fetchDocumentById,
-    updateDocument,
+    fetchAllDateNestedDocuments,
+    fetchDocumentWhereDocumentId,
 } from "../service/firebaseHelper.mjs";
 import * as Constants from "../utils/constants.mjs";
 import { containsRole } from "../service/tokenAuth.mjs";
@@ -12,7 +10,9 @@ import {
     addMockIdeas,
     addMockReaction,
     clearDocument,
+    addMockMetrics,
 } from "../utils/mockHelper.mjs";
+import { getCurrentDateAsDBFormat, getCurrentDateAsFirestoreFormat } from "../utils/utils.mjs";
 
 const router = express.Router();
 
@@ -39,7 +39,7 @@ router.post("/", containsRole("Admin"), async (req, res) => {
 });
 
 router.get("/clearMock", async (req, res) => {
-    clearDocument("Comment");
+    clearDocument("Idea");
     res.status(200).send({
         success: true,
         code: 200,
@@ -49,7 +49,7 @@ router.get("/clearMock", async (req, res) => {
 
 router.get("/addReaction", async (req, res) => {
     var count = parseInt(req.query.count);
-    addMockReaction(100);
+    addMockReaction(400);
     res.status(200).send({
         success: true,
         code: 200,
@@ -59,7 +59,7 @@ router.get("/addReaction", async (req, res) => {
 
 router.get("/addComments", async (req, res) => {
     var count = parseInt(req.query.count);
-    addMockComments(100);
+    addMockComments(200);
     res.status(200).send({
         success: true,
         code: 200,
@@ -67,7 +67,7 @@ router.get("/addComments", async (req, res) => {
     });
 });
 
-router.get("/Ideas", async (req, res) => {
+router.get("/addIdeas", async (req, res) => {
     var count = parseInt(req.query.count);
     addMockIdeas(100);
     res.status(200).send({
@@ -76,5 +76,18 @@ router.get("/Ideas", async (req, res) => {
         message: count + " new ideas added",
     });
 });
+
+router.get('/addMetrics', async (req, res) => {
+    addMockMetrics(42);
+    res.status(200).send({
+        message: 'success'
+    })
+})
+
+
+router.get('/testWhereId', async (req, res) => {
+    console.log(Date.parse(getCurrentDateAsDBFormat()) / 1000);
+    res.status(200).json('Hello');
+})
 
 export default router;

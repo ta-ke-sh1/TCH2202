@@ -11,6 +11,7 @@ import testController from "./controllers/testController.mjs";
 import { authorize, containsRole } from "./service/tokenAuth.mjs";
 import { isExists } from "./service/tokenAuth.mjs";
 import jwt from "jsonwebtoken";
+import { updateLoginMetrics } from "./service/metrics.mjs";
 
 const app = express();
 
@@ -48,12 +49,14 @@ app.use("/test", testController);
 app.post("/login", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
+    const device_type = req.body.device_type;
     if (username === undefined || password === undefined) {
         res.status(300).send({
             message: "Invalid password/username!",
         });
     } else {
         var respond = await authorize(username, password);
+        updateLoginMetrics(device_type);
         res.status(respond.code).json(respond);
     }
 });

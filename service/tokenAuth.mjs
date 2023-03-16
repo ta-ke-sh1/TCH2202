@@ -10,6 +10,7 @@ const db = getFirestore(app);
 
 import bcrypt from "bcryptjs";
 
+
 function containsRole(role) {
     return function middle(req, res, next) {
         var token = req.get("Authorization");

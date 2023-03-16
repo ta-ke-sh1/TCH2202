@@ -4,8 +4,12 @@ function getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function getCurrentDateAsFirestoreFormat() {
+    return moment().format("YYYY-MM-D");
+}
+
 function getCurrentDateAsDBFormat() {
-    return moment().format("YYYY/M/D");
+    return moment().format("YYYY/MM/D");
 }
 
 function convertStringToArray(input) {
@@ -18,4 +22,4 @@ function convertStringToArray(input) {
     return input.split(",");
 }
 
-export { getRndInteger, getCurrentDateAsDBFormat, convertStringToArray };
+export { getRndInteger, getCurrentDateAsDBFormat, convertStringToArray, getCurrentDateAsFirestoreFormat };
