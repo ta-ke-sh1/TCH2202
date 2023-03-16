@@ -82,6 +82,7 @@ async function addMockMetrics(duration) {
         var m = getRndInteger(0, 50);
         var t = getRndInteger(0, 50);
         await setDocument('Metrics', 'd-' + id, {
+            timestamp: moment(getCurrentDateAsDBFormat()).subtract(i, 'days').unix(),
             comment: getRndInteger(0, 150),
             device_type: {
                 desktop: d,

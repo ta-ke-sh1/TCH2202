@@ -21,6 +21,8 @@ app.use(
     })
 );
 
+app.use(express.static('assets'))
+
 app.use(json());
 
 app.use(

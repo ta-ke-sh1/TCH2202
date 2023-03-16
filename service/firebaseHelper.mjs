@@ -11,6 +11,7 @@ import {
     getDoc,
     where,
     query,
+    limit,
     orderBy,
     getCountFromServer,
 } from "firebase/firestore";
@@ -20,7 +21,7 @@ import * as constants from "../utils/constants.mjs";
 const app = initializeApp(constants.firebaseConfig);
 const db = getFirestore(app);
 
-const fetchDocumentWhereDocumentId = async (document, { isBefore, isAfter }) => {
+const fetchDocumentWhereDocumentId = async (document, l, { isBefore, isAfter }) => {
     var documents = [];
 
     var q;
@@ -28,24 +29,32 @@ const fetchDocumentWhereDocumentId = async (document, { isBefore, isAfter }) => 
     if (isAfter && isBefore) {
         q = query(
             collection(db, document),
-            where('__name__', "<=", isBefore),
-            where('__name__', ">=", isAfter)
+            where('timestamp', "<=", isBefore),
+            where('timestamp', ">=", isAfter),
+            orderBy('timestamp', 'desc'),
+            limit(l)
         );
     }
     else if (isBefore) {
         q = query(
             collection(db, document),
-            where('__name__', "<=", isBefore),
+            where('timestamp', "<=", isBefore),
+            orderBy('timestamp', 'desc'),
+            limit(l)
         );
     }
     else if (isAfter) {
         q = query(
             collection(db, document),
-            where('__name__', ">=", isAfter),
+            where('timestamp', ">=", isAfter),
+            orderBy('timestamp', 'desc'),
+            limit(l)
         );
     } else {
         q = query(
             collection(db, document),
+            orderBy('timestamp', 'desc'),
+            limit(l)
         );
     }
 

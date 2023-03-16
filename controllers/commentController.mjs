@@ -1,7 +1,6 @@
 import express from "express";
 import {
     fetchAllMatchingDocuments,
-    fetchAllDocuments,
     fetchDocumentById,
     addDocument,
     deleteDocument,

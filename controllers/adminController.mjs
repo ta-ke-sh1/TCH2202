@@ -6,6 +6,7 @@ import {
     fetchAllMatchingDocumentsCount,
     fetchDocumentById,
     updateDocument,
+    fetchDocumentWhereDocumentId,
 } from "../service/firebaseHelper.mjs";
 import { Idea } from "../model/idea.mjs";
 import { zip } from "zip-a-folder";
@@ -13,7 +14,7 @@ import * as path from "path";
 import { containsRole } from "../service/tokenAuth.mjs";
 import { appendFileSync } from 'fs';
 import fs from "fs";
-import { convertStringToArray } from "../utils/utils.mjs";
+import { getCurrentDateAsDBFormat } from "../utils/utils.mjs";
 import moment from 'moment';
 
 const router = express.Router();
@@ -95,10 +96,10 @@ router.get('/popularTags', async (req, res) => {
 });
 
 router.get('/dashboard', async (req, res) => {
-    res.status(200).json({
-        a: 1,
-        b: 2
-    })
+    var limit = req.query.limit;
+    var snapshots = await fetchDocumentWhereDocumentId('Metrics', limit, { isBefore: Date.parse(getCurrentDateAsDBFormat()) / 1000 })
+    console.log(snapshots);
+    res.status(200).json(snapshots.reverse());
 });
 
 router.post('/createThread', async (req, res) => {
