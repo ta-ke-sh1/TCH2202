@@ -95,6 +95,7 @@ const authorize = async (username, password) => {
     }
 
     var u = User.fromJson(user.data());
+    console.log(u);
     if (!bcrypt.compareSync(password, u.password)) {
         return {
             code: 406,
@@ -105,12 +106,13 @@ const authorize = async (username, password) => {
     var access_secret = process.env.JWT_SECRET_ACCESS;
     const accessToken = jwt.sign(
         {
-            user: user.id,
-            email: user.email,
-            role: user.data().role,
+            avatar: u.avatar,
+            user: u.id,
+            email: u.email,
+            role: u.role,
         },
         access_secret,
-        { expiresIn: "2d" }
+        { expiresIn: "1d" }
     );
 
     var refresh_secret = process.env.JWT_SECRET_REFRESH;

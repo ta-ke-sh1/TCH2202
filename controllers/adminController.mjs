@@ -54,7 +54,6 @@ router.get('/popularTags', async (req, res) => {
             })
         }
     }
-    console.log(departmentMap);
 
     for (let i = 0; i < iteration; i++) {
         const d = moment().subtract(i, 'days').format('YYYY/M/D');
@@ -74,7 +73,9 @@ router.get('/popularTags', async (req, res) => {
 
                 for (let k = 0; k < catList.length; k++) {
                     var tag = tagMap.findIndex((obj => obj.id === catList[k]))
-                    tagMap[tag].count = tagMap[tag].count + 1;
+                    if (tag > 0) {
+                        tagMap[tag].count = tagMap[tag].count + 1;
+                    }
                 }
 
                 var user = await fetchDocumentById('User', ideas[i][j].data().writer_id);
