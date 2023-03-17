@@ -1,9 +1,52 @@
-import { updateDocument, fetchDocumentById } from "./firebaseHelper.mjs";
+import { updateDocument, fetchDocumentById, setDocument } from "./firebaseHelper.mjs";
 import { getCurrentDateAsDBFormat } from "../utils/utils.mjs";
 
 const updateLoginMetrics = async (device) => {
     var metrics = await fetchDocumentById('Metrics', 'd-' + Date.parse(getCurrentDateAsDBFormat()) / 1000);
-    var updateObj = { unique_visit: parseInt(metrics.data().unique_visit) + 1 };
+    if (!metrics) {
+        var updateObj = {
+            unique_visit: 1,
+            comment: 0,
+            post: 0,
+            reaction: 0,
+            timestamp: Date.parse(getCurrentDateAsDBFormat()) / 1000,
+            device_type: {
+                desktop: 0,
+                mobile: 0,
+                tablet: 0,
+            }
+        }
+        switch (device) {
+            case "desktop":
+                updateObj.device_type = {
+                    desktop: 1,
+                    mobile: 0,
+                    tablet: 0,
+                }
+
+                break;
+            case "mobile":
+                updateObj.device_type = {
+                    desktop: 0,
+                    mobile: 1,
+                    tablet: 0,
+                }
+
+                break;
+            case "tablet":
+                updateObj.device_type = {
+                    desktop: 0,
+                    tablet: 1,
+                    mobile: 0
+                }
+                break;
+        }
+        await setDocument('Metrics', 'd-' + Date.parse(getCurrentDateAsDBFormat()) / 1000, updateObj);
+        return true;
+    }
+
+    updateObj = metrics.data();
+    updateObj.unique_visit = parseInt(metrics.data().unique_visit) + 1;
     switch (device) {
         case "desktop":
             updateObj.device_type = {
@@ -29,12 +72,8 @@ const updateLoginMetrics = async (device) => {
             }
 
             break;
-        default:
-            updateObj = {
-                unique_visit: parseInt(metrics.data().unique_visit) + 1,
-            }
-            break;
     }
+
     await updateDocument('Metrics', 'd-' + Date.parse(getCurrentDateAsDBFormat()) / 1000, updateObj);
     return true;
 }
