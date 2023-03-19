@@ -10,7 +10,6 @@ const db = getFirestore(app);
 
 import bcrypt from "bcryptjs";
 
-
 function containsRole(role) {
     return function middle(req, res, next) {
         var token = req.get("Authorization");
@@ -68,7 +67,13 @@ const register = async (document) => {
     try {
         console.log(document);
         await setDoc(
-            doc(db, constants.UserRepository, document.username),
+            doc(
+                db,
+                constants.UserRepository,
+                document.username[0].toLowercase(),
+                constants.UserRepository,
+                document.username
+            ),
             document.toJson()
         );
         return {
@@ -135,7 +140,14 @@ const isExists = async (username) => {
     if (username == null) {
         return false;
     }
-    const docRef = doc(db, constants.UserRepository, username);
+    console.log(username[0]);
+    const docRef = doc(
+        db,
+        constants.UserRepository,
+        username[0].toLowerCase(),
+        constants.UserRepository,
+        username
+    );
     const querySnapshot = await getDoc(docRef);
     if (querySnapshot.data() === undefined || querySnapshot.data() === null) {
         return false;

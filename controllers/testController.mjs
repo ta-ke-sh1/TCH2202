@@ -11,8 +11,12 @@ import {
     addMockReaction,
     clearDocument,
     addMockMetrics,
+    addMockUsers,
 } from "../utils/mockHelper.mjs";
-import { getCurrentDateAsDBFormat, getCurrentDateAsFirestoreFormat } from "../utils/utils.mjs";
+import {
+    getCurrentDateAsDBFormat,
+    getCurrentDateAsFirestoreFormat,
+} from "../utils/utils.mjs";
 
 const router = express.Router();
 
@@ -39,7 +43,7 @@ router.post("/", containsRole("Admin"), async (req, res) => {
 });
 
 router.get("/clearMock", async (req, res) => {
-    clearDocument("Idea");
+    clearDocument("User");
     res.status(200).send({
         success: true,
         code: 200,
@@ -77,17 +81,23 @@ router.get("/addIdeas", async (req, res) => {
     });
 });
 
-router.get('/addMetrics', async (req, res) => {
+router.get("/addUsers", async (req, res) => {
+    addMockUsers(100);
+    res.status(200).send({
+        message: "success",
+    });
+});
+
+router.get("/addMetrics", async (req, res) => {
     addMockMetrics(42);
     res.status(200).send({
-        message: 'success'
-    })
-})
+        message: "success",
+    });
+});
 
-
-router.get('/testWhereId', async (req, res) => {
+router.get("/testWhereId", async (req, res) => {
     console.log(Date.parse(getCurrentDateAsDBFormat()) / 1000);
-    res.status(200).json('Hello');
-})
+    res.status(200).json("Hello");
+});
 
 export default router;

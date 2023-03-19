@@ -51,10 +51,10 @@ async function addMockUsers() {
             bcrypt.hashSync("123456", 10),
             name,
             getRndInteger(1990, 2004) +
-            "/" +
-            getRndInteger(1, 12) +
-            "/" +
-            getRndInteger(1, 30),
+                "/" +
+                getRndInteger(1, 12) +
+                "/" +
+                getRndInteger(1, 30),
             ["Staff"],
             "+840" + getRndInteger(30, 99) + getRndInteger(100000, 999999),
             "Activated",
@@ -67,9 +67,15 @@ async function addMockUsers() {
     var batch = writeBatch(db);
 
     users.forEach((user) => {
-        const docRef = doc(db, userCollectionRef, user.username);
+        const docRef = doc(
+            db,
+            userCollectionRef,
+            user.username[0].toLowerCase(),
+            userCollectionRef,
+            user.username
+        );
         console.log(user.toJson());
-        batch.set(docRef, user.toJson());
+        batch.set(docRef, user.toJson(), { merge: true });
     });
 
     await batch.commit();
@@ -77,24 +83,25 @@ async function addMockUsers() {
 
 async function addMockMetrics(duration) {
     for (let i = 0; i < duration; i++) {
-        var id = moment(getCurrentDateAsDBFormat()).subtract(i, 'days').unix();
+        var id = moment(getCurrentDateAsDBFormat()).subtract(i, "days").unix();
         var d = getRndInteger(0, 150);
         var m = getRndInteger(0, 50);
         var t = getRndInteger(0, 50);
-        await setDocument('Metrics', 'd-' + id, {
-            timestamp: moment(getCurrentDateAsDBFormat()).subtract(i, 'days').unix(),
+        await setDocument("Metrics", "d-" + id, {
+            timestamp: moment(getCurrentDateAsDBFormat())
+                .subtract(i, "days")
+                .unix(),
             comment: getRndInteger(0, 150),
             device_type: {
                 desktop: d,
                 mobile: m,
-                tablet: t
+                tablet: t,
             },
             post: getRndInteger(0, 50),
             reaction: getRndInteger(0, 150),
-            unique_visit: d + m + t
-        })
+            unique_visit: d + m + t,
+        });
     }
-
 }
 
 async function addMockIdeas(number) {
@@ -115,16 +122,16 @@ async function addMockIdeas(number) {
     };
 
     const users = {
-        1: "adrianesherrie",
-        2: "alexianickie",
-        3: "galinagretta",
-        4: "iviejerrilyn",
-        5: "edytheflorette",
-        6: "leandramarylynne",
-        7: "deenaarabele",
-        8: "bertechiarra",
-        9: "angelphilly",
-        10: "krissyheath",
+        1: "adriennejeannette",
+        2: "deannerikki",
+        3: "dodiromy",
+        4: "genniferlelah",
+        5: "laneybritney",
+        6: "mahaliaanett",
+        7: "rethapattie",
+        8: "venitajanot",
+        9: "wandacarlye",
+        10: "norakim",
     };
 
     for (let i = 0; i < number; i++) {
@@ -192,6 +199,8 @@ async function addMockReaction(number) {
         );
     }
 }
+
+async function clearUsers() {}
 
 async function clearDocument(collection) {
     var documents = await fetchAllDocuments(collection);
