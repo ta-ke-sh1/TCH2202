@@ -4,6 +4,8 @@ import {
     fetchDocumentById,
     deleteDocument,
     updateDocument,
+    fetchUserById,
+    fetchAllUsers,
 } from "../service/firebaseHelper.mjs";
 import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
@@ -36,7 +38,7 @@ const upload = multer({ storage: storage });
 router.get("/", async (req, res) => {
     const id = req.query.id;
     if (id) {
-        var snapshot = await fetchDocumentById(collectionRef, id);
+        var snapshot = await fetchUserById(id);
         if (snapshot) {
             var user = User.fromJson(snapshot.data(), snapshot.id);
             res.status(200).send(user);
@@ -49,7 +51,7 @@ router.get("/", async (req, res) => {
         }
     } else {
         const users = [];
-        var snapshots = await fetchAllDocuments(collectionRef);
+        var snapshots = await fetchAllUsers(collectionRef);
         console.log("User Page");
         snapshots.forEach((snapshot) => {
             users.push(User.fromJson(snapshot.data(), snapshot.id));
@@ -101,7 +103,7 @@ router.get("/addMock", async (req, res) => {
 });
 
 router.post("/edit", upload.single("avatar"), async (req, res) => {
-    var user = await fetchDocumentById(collectionRef, req.body.id);
+    var user = await fetchUserById(collectionRef, req.body.id);
 
     if (!user) {
         res.status(300).send({
@@ -123,7 +125,7 @@ router.post("/edit", upload.single("avatar"), async (req, res) => {
             updateObj.avatar = ref(storage, "/avatar/" + filename);
         }
 
-        const respond = await updateDocument(
+        const respond = await setUser(
             collectionRef,
             req.body.id,
             updateObj

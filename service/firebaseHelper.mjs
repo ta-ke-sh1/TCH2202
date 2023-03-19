@@ -122,6 +122,49 @@ const fetchAllMatchingDocumentsCount = async (document, criteria, keyword) => {
     else return 0;
 }
 
+const fetchAllUsers = async () => {
+    const documents = [];
+    var alphabet = "abcdefghijklmnopqrstuvwyxyz".split("");
+    for (var i = 0; i < alphabet.length; i++) {
+        const querySnapshot = await getDocs(collection(db, 'User', alphabet[i], 'User'));
+        querySnapshot.forEach((doc) => {
+            documents.push(doc);
+        });
+    }
+    return documents;
+}
+
+const fetchUserById = async (id) => {
+    const docRef = doc(db, 'User', id[0], 'User', id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        return docSnap;
+    }
+    return null;
+}
+
+const addUser = async (id, user) => {
+    try {
+        const docRef = await addDoc(
+            collection(db, 'User', id[0]),
+            user
+        );
+        console.log("Document written with ID: ", docRef.id);
+        return docRef.id;
+    } catch (e) {
+        console.error("Error adding document: ", e);
+        return "Error";
+    }
+}
+
+const setUser = async (id, user) => {
+    await setDoc(doc(db, 'User', id[0], 'User', id), user);
+    return {
+        code: 200,
+        message: "Set document with id: " + id,
+    };
+}
+
 const fetchDocumentById = async (collectionRef, id) => {
     if (id != null) {
         const docRef = doc(db, collectionRef, id);
@@ -186,4 +229,8 @@ export {
     updateDocument,
     setDocument,
     fetchDocumentWhereDocumentId,
+    fetchAllUsers,
+    fetchUserById,
+    setUser,
+    addUser
 };
