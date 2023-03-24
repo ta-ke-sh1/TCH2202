@@ -28,7 +28,7 @@ app.use(json());
 app.use(
     cors({
         origin: "*",
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST", 'UPDATE', "DELETE", 'PUT'],
     })
 );
 

@@ -56,6 +56,7 @@ router.get("/", async (req, res) => {
         snapshots.forEach((snapshot) => {
             users.push(User.fromJson(snapshot.data(), snapshot.id));
         });
+        console.log(users.length);
         res.send(users);
     }
 });

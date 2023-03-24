@@ -43,7 +43,7 @@ router.post("/", containsRole("Admin"), async (req, res) => {
 });
 
 router.get("/clearMock", async (req, res) => {
-    clearDocument("User");
+    clearDocument("Idea");
     res.status(200).send({
         success: true,
         code: 200,

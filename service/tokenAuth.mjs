@@ -112,7 +112,7 @@ const authorize = async (username, password) => {
     const accessToken = jwt.sign(
         {
             avatar: u.avatar,
-            user: u.id,
+            user: username,
             email: u.email,
             role: u.role,
         },
