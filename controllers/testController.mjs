@@ -1,5 +1,6 @@
 import express from "express";
 import {
+    deleteAllUsers,
     fetchAllDateNestedDocuments,
     fetchDocumentWhereDocumentId,
 } from "../service/firebaseHelper.mjs";
@@ -43,7 +44,7 @@ router.post("/", containsRole("Admin"), async (req, res) => {
 });
 
 router.get("/clearMock", async (req, res) => {
-    clearDocument("Idea");
+    clearDocument("Reaction");
     res.status(200).send({
         success: true,
         code: 200,
@@ -72,7 +73,7 @@ router.get("/addComments", async (req, res) => {
 });
 
 router.get("/addIdeas", async (req, res) => {
-    var count = parseInt(req.query.count);
+
     addMockIdeas(100);
     res.status(200).send({
         success: true,

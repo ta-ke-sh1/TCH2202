@@ -11,7 +11,7 @@ import {
     addDoc,
     setDoc,
 } from "firebase/firestore";
-import { fetchAllDocuments, setDocument } from "../service/firebaseHelper.mjs";
+import { fetchAllDocuments, fetchAllUsers, setDocument } from "../service/firebaseHelper.mjs";
 import bcrypt from "bcryptjs";
 import { User } from "../model/user.mjs";
 import { Comment } from "../model/comment.mjs";
@@ -30,10 +30,9 @@ const loremIpsum =
 async function addMockUsers() {
     const roles = {
         1: "1D17R3ozi5G8Ih12H4CV",
-        2: "HrBpfqyOOPVomC6FuyPM",
-        3: "TnKVhc7Euaskx4W9n3sW",
-        4: "ZbxTmrJKbT16HOSYPbN2",
-        5: "s4sXB2J5q6Zx1f4qIIwB",
+        2: "1desZrSKpLUFY7rZXB5s",
+        3: "ZbxTmrJKbT16HOSYPbN2",
+        4: "s4sXB2J5q6Zx1f4qIIwB",
     };
 
     const users = [];
@@ -46,15 +45,15 @@ async function addMockUsers() {
                 dictionaries: [names],
             });
         var user = new User(
-            roles[getRndInteger(1, 5)],
+            roles[getRndInteger(1, 4)],
             name.toLowerCase(),
             bcrypt.hashSync("123456", 10),
             name,
             getRndInteger(1990, 2004) +
-                "/" +
-                getRndInteger(1, 12) +
-                "/" +
-                getRndInteger(1, 30),
+            "/" +
+            getRndInteger(1, 12) +
+            "/" +
+            getRndInteger(1, 30),
             ["Staff"],
             "+840" + getRndInteger(30, 99) + getRndInteger(100000, 999999),
             "Activated",
@@ -121,18 +120,7 @@ async function addMockIdeas(number) {
         4: "pd03HIB3PRNO02Y3NrgO",
     };
 
-    const users = {
-        1: "adriennejeannette",
-        2: "deannerikki",
-        3: "dodiromy",
-        4: "genniferlelah",
-        5: "laneybritney",
-        6: "mahaliaanett",
-        7: "rethapattie",
-        8: "venitajanot",
-        9: "wandacarlye",
-        10: "norakim",
-    };
+    var users = await fetchAllUsers();
 
     for (let i = 0; i < number; i++) {
         var cat = [];
@@ -162,11 +150,11 @@ async function addMockIdeas(number) {
 
 async function addMockComments(number) {
     var ideas = await fetchAllDocuments("Idea");
-    var users = await fetchAllDocuments("User");
+    var users = await fetchAllUsers();
     for (var i = 0; i < number; i++) {
         var comment = new Comment(
             ideas[getRndInteger(0, ideas.length - 1)].id,
-            users[getRndInteger(0, users.length - 1)].id,
+            users[getRndInteger(0, users.length - 1)],
             "Lorem ipsum sit dolor",
             Date.now() / 1000,
             0
@@ -178,7 +166,7 @@ async function addMockComments(number) {
 async function addMockReaction(number) {
     var ideas = await fetchAllDocuments("Idea");
     var comments = await fetchAllDocuments("Comment");
-    var users = await fetchAllDocuments("User");
+    var users = await fetchAllUsers();
 
     for (var i = 0; i < number; i++) {
         var ideaOrCommnent = getRndInteger(0, 1) === 1;
@@ -200,7 +188,9 @@ async function addMockReaction(number) {
     }
 }
 
-async function clearUsers() {}
+async function clearUsers() {
+
+}
 
 async function clearDocument(collection) {
     var documents = await fetchAllDocuments(collection);

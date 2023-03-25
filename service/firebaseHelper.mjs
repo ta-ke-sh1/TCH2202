@@ -13,6 +13,7 @@ import {
     query,
     limit,
     orderBy,
+    writeBatch,
     getCountFromServer,
 } from "firebase/firestore";
 
@@ -128,10 +129,23 @@ const fetchAllUsers = async () => {
     for (var i = 0; i < alphabet.length; i++) {
         const querySnapshot = await getDocs(collection(db, 'User', alphabet[i], 'User'));
         querySnapshot.forEach((doc) => {
-            documents.push(doc);
+            var data = doc.data();
+            data.id = doc.id;
+            documents.push(data);
         });
     }
     return documents;
+}
+
+const deleteAllUsers = async () => {
+    var batch = writeBatch(db);
+    var alphabet = "abcdefghijklmnopqrstuvwyxyz".split("");
+    for (var i = 0; i < alphabet.length; i++) {
+        const docRef = doc(db, 'User', alphabet[i]);
+        batch.delete(docRef);
+    }
+
+    await batch.commit();
 }
 
 const fetchUserById = async (id) => {
@@ -232,5 +246,6 @@ export {
     fetchAllUsers,
     fetchUserById,
     setUser,
-    addUser
+    addUser,
+    deleteAllUsers
 };
