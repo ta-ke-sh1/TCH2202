@@ -33,9 +33,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/get", async (req, res) => { });
-
-router.post("/add", async (req, res) => {
+router.post("/", async (req, res) => {
     var department = new Department(null, req.body.name, 0);
     console.log(department);
     await addDocument(collection, department);
@@ -43,7 +41,7 @@ router.post("/add", async (req, res) => {
     console.log("Department added, ID: " + req.body.id);
 });
 
-router.post("/edit", async (req, res) => {
+router.put("/", async (req, res) => {
     var department = new Department(
         req.body.id,
         req.body.name,
@@ -56,7 +54,7 @@ router.post("/edit", async (req, res) => {
     });
 });
 
-router.get("/delete", async (req, res) => {
+router.delete("/", async (req, res) => {
     const respond = await deleteDocument(collection, req.body.id);
     console.log("Department deleted, ID: " + req.body.id);
     res.status(respond.code).send({

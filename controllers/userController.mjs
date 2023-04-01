@@ -61,7 +61,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/add", upload.single("avatar"), async (req, res) => {
+router.post("/", upload.single("avatar"), async (req, res) => {
     var avatarPath = "";
     if (req.file) {
         avatarPath = req.file.path;
@@ -89,21 +89,7 @@ router.post("/add", upload.single("avatar"), async (req, res) => {
     });
 });
 
-router.get("/clearDatabase", async (req, res) => {
-    clearDocument(collectionRef);
-    res.status(200).send({ success: true, message: "Deleted all mock users" });
-});
-
-router.get("/addMock", async (req, res) => {
-    addMockUsers();
-    res.status(200).send({
-        success: true,
-        code: 200,
-        message: "20 new users added",
-    });
-});
-
-router.post("/edit", upload.single("avatar"), async (req, res) => {
+router.put("/", upload.single("avatar"), async (req, res) => {
     var user = await fetchUserById(collectionRef, req.body.id);
 
     if (!user) {
@@ -126,18 +112,14 @@ router.post("/edit", upload.single("avatar"), async (req, res) => {
             updateObj.avatar = ref(storage, "/avatar/" + filename);
         }
 
-        const respond = await setUser(
-            collectionRef,
-            req.body.id,
-            updateObj
-        );
+        const respond = await setUser(collectionRef, req.body.id, updateObj);
         res.status(respond.code).send({
             message: respond.message,
         });
     }
 });
 
-router.get("/delete", async (req, res) => {
+router.delete("/", async (req, res) => {
     const respond = await deleteDocument(collectionRef, req.body.id);
     console.log("User deleted, ID: " + req.body.id);
     res.status(respond.code).send({

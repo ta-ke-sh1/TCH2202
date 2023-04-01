@@ -37,7 +37,7 @@ router.get("/", async (req, res) => {
     res.send(dept);
 });
 
-router.post("/add", async (req, res) => {
+router.post("/", async (req, res) => {
     var comment = new Comment(
         req.body.idea_id,
         req.body.user_id,
@@ -46,11 +46,11 @@ router.post("/add", async (req, res) => {
         req.body.isAnonymous
     );
     const response = await addDocument(collectionRef, comment);
-    updateDocumentMetrics('Comment');
+    updateDocumentMetrics("Comment");
     res.status(200).json(response);
 });
 
-router.post("/edit", async (req, res) => {
+router.put("/", async (req, res) => {
     var comment = new Comment(
         req.body.id,
         req.body.idea_id,
@@ -67,7 +67,7 @@ router.post("/edit", async (req, res) => {
     });
 });
 
-router.get("/delete", async (req, res) => {
+router.delete("/", async (req, res) => {
     const respond = await deleteDocument(collectionRef, req.query.id);
     console.log("Comment deleted, ID: " + req.query.id);
     res.status(respond.code).send({

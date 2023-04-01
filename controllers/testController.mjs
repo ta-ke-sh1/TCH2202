@@ -18,6 +18,7 @@ import {
     getCurrentDateAsDBFormat,
     getCurrentDateAsFirestoreFormat,
 } from "../utils/utils.mjs";
+import { fetchDepartmentReportByDuration } from "../service/metricsHelper.mjs";
 
 const router = express.Router();
 
@@ -73,7 +74,6 @@ router.get("/addComments", async (req, res) => {
 });
 
 router.get("/addIdeas", async (req, res) => {
-
     addMockIdeas(100);
     res.status(200).send({
         success: true,
@@ -98,6 +98,11 @@ router.get("/addMetrics", async (req, res) => {
 
 router.get("/testWhereId", async (req, res) => {
     console.log(Date.parse(getCurrentDateAsDBFormat()) / 1000);
+    res.status(200).json("Hello");
+});
+
+router.get("/test", async (req, res) => {
+    await fetchDepartmentReportByDuration(1, "ZbxTmrJKbT16HOSYPbN2");
     res.status(200).json("Hello");
 });
 

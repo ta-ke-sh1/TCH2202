@@ -191,7 +191,7 @@ router.get("/category", async (req, res) => {
     });
 });
 
-router.post("/add", upload.array("items", 10), async (req, res) => {
+router.post("/", upload.array("items", 10), async (req, res) => {
     console.log("new item request");
     var fileNames = [];
     for (let i = 0; i < req.files.length; i++) {
@@ -222,17 +222,12 @@ router.post("/add", upload.array("items", 10), async (req, res) => {
     await addDocument(collectionRef, idea);
 
     const receiver = req.body.approver_id;
-    sendMail(
-        receiver,
-        "New post added",
-        "Sender: " +
-        req.body.writer_id
-    );
+    sendMail(receiver, "New post added", "Sender: " + req.body.writer_id);
     res.status(200).send({
         success: true,
         message: idea,
     });
-    updateDocumentMetrics('Idea');
+    updateDocumentMetrics("Idea");
     console.log("Idea added, ID: " + req.body.id);
 });
 
@@ -242,14 +237,14 @@ router.get("/accessed", async (req, res) => {
     if (idea) {
         var i = idea.data();
         i.visit_count = i.visit_count + 1;
-        await updateDocument(collectionRef, id, i)
+        await updateDocument(collectionRef, id, i);
     }
 
+    const metricReport = await fetchReportByDate();
     res.status(200);
 });
 
-
-router.post("/edit", async (req, res) => {
+router.put("/", async (req, res) => {
     var idea = new Idea(
         req.body.id,
         req.body.writer_id,
@@ -261,7 +256,11 @@ router.post("/edit", async (req, res) => {
         req.body.stat,
         req.body.is_anonymous
     );
-    const respond = await updateDocument(collectionRef, req.body.id, idea);
+    const respond = await updateDocument(
+        collectionRef,
+        req.body.id,
+        idea.toJson()
+    );
     console.log("Idea updated, ID: " + req.body.id);
     res.status(respond.code).send({
         message: respond.message,

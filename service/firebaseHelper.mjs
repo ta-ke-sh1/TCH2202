@@ -22,7 +22,11 @@ import * as constants from "../utils/constants.mjs";
 const app = initializeApp(constants.firebaseConfig);
 const db = getFirestore(app);
 
-const fetchDocumentWhereDocumentId = async (document, l, { isBefore, isAfter }) => {
+const fetchDocumentWhereDocumentId = async (
+    document,
+    l,
+    { isBefore, isAfter }
+) => {
     var documents = [];
 
     var q;
@@ -30,31 +34,29 @@ const fetchDocumentWhereDocumentId = async (document, l, { isBefore, isAfter }) 
     if (isAfter && isBefore) {
         q = query(
             collection(db, document),
-            where('timestamp', "<=", isBefore),
-            where('timestamp', ">=", isAfter),
-            orderBy('timestamp', 'desc'),
+            where("timestamp", "<=", isBefore),
+            where("timestamp", ">=", isAfter),
+            orderBy("timestamp", "desc"),
             limit(l)
         );
-    }
-    else if (isBefore) {
+    } else if (isBefore) {
         q = query(
             collection(db, document),
-            where('timestamp', "<=", isBefore),
-            orderBy('timestamp', 'desc'),
+            where("timestamp", "<=", isBefore),
+            orderBy("timestamp", "desc"),
             limit(l)
         );
-    }
-    else if (isAfter) {
+    } else if (isAfter) {
         q = query(
             collection(db, document),
-            where('timestamp', ">=", isAfter),
-            orderBy('timestamp', 'desc'),
+            where("timestamp", ">=", isAfter),
+            orderBy("timestamp", "desc"),
             limit(l)
         );
     } else {
         q = query(
             collection(db, document),
-            orderBy('timestamp', 'desc'),
+            orderBy("timestamp", "desc"),
             limit(l)
         );
     }
@@ -64,18 +66,17 @@ const fetchDocumentWhereDocumentId = async (document, l, { isBefore, isAfter }) 
         documents.push(doc.data());
     });
     return documents;
-}
-// For 
+};
+// For
 const fetchAllDateNestedDocuments = async (date, document) => {
     const documents = [];
-    const docRef = collection(db, "Documents/", date, document)
+    const docRef = collection(db, "Documents/", date, document);
     const querySnapshot = await getDocs(docRef);
     querySnapshot.forEach((doc) => {
         documents.push(doc.data());
     });
     return documents;
 };
-
 
 const fetchAllDocuments = async (document) => {
     const documents = [];
@@ -121,13 +122,15 @@ const fetchAllMatchingDocumentsCount = async (document, criteria, keyword) => {
     const snapshot = await getCountFromServer(q);
     if (snapshot) return snapshot.data().count;
     else return 0;
-}
+};
 
 const fetchAllUsers = async () => {
     const documents = [];
     var alphabet = "abcdefghijklmnopqrstuvwyxyz".split("");
     for (var i = 0; i < alphabet.length; i++) {
-        const querySnapshot = await getDocs(collection(db, 'User', alphabet[i], 'User'));
+        const querySnapshot = await getDocs(
+            collection(db, "User", alphabet[i], "User")
+        );
         querySnapshot.forEach((doc) => {
             var data = doc.data();
             data.id = doc.id;
@@ -135,49 +138,46 @@ const fetchAllUsers = async () => {
         });
     }
     return documents;
-}
+};
 
 const deleteAllUsers = async () => {
     var batch = writeBatch(db);
     var alphabet = "abcdefghijklmnopqrstuvwyxyz".split("");
     for (var i = 0; i < alphabet.length; i++) {
-        const docRef = doc(db, 'User', alphabet[i]);
+        const docRef = doc(db, "User", alphabet[i]);
         batch.delete(docRef);
     }
 
     await batch.commit();
-}
+};
 
 const fetchUserById = async (id) => {
-    const docRef = doc(db, 'User', id[0], 'User', id);
+    const docRef = doc(db, "User", id[0], "User", id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
         return docSnap;
     }
     return null;
-}
+};
 
 const addUser = async (id, user) => {
     try {
-        const docRef = await addDoc(
-            collection(db, 'User', id[0]),
-            user
-        );
+        const docRef = await addDoc(collection(db, "User", id[0]), user);
         console.log("Document written with ID: ", docRef.id);
         return docRef.id;
     } catch (e) {
         console.error("Error adding document: ", e);
         return "Error";
     }
-}
+};
 
 const setUser = async (id, user) => {
-    await setDoc(doc(db, 'User', id[0], 'User', id), user);
+    await setDoc(doc(db, "User", id[0], "User", id), user);
     return {
         code: 200,
         message: "Set document with id: " + id,
     };
-}
+};
 
 const fetchDocumentById = async (collectionRef, id) => {
     if (id != null) {
@@ -247,5 +247,5 @@ export {
     fetchUserById,
     setUser,
     addUser,
-    deleteAllUsers
+    deleteAllUsers,
 };
