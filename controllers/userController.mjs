@@ -4,6 +4,7 @@ import {
     fetchDocumentById,
     deleteDocument,
     updateDocument,
+    updateUser,
     fetchUserById,
     fetchAllUsers,
 } from "../service/firebaseHelper.mjs";
@@ -90,41 +91,59 @@ router.post("/", upload.single("avatar"), async (req, res) => {
 });
 
 router.put("/", upload.single("avatar"), async (req, res) => {
-    var user = await fetchUserById(collectionRef, req.body.id);
-
-    if (!user) {
-        res.status(300).send({
-            message: "User doesn't exists!",
+    if (!req.body.id) {
+        res.status(300).json({
+            message: "No id was provided!",
         });
     } else {
-        var updateObj = {
-            department_id: req.body.department_id,
-            fullName: req.body.fullName,
-            dob: req.body.dob,
-            role: req.body.role,
-            stat: req.body.stat,
-            email: req.body.email,
-        };
+        var user = await fetchUserById(collectionRef, req.body.id);
 
-        if (req.file) {
-            const filename = user.id + path.extname(req.file.originalname);
-            console.log(filename);
-            updateObj.avatar = ref(storage, "/avatar/" + filename);
+        if (!user) {
+            res.status(300).send({
+                message: "User doesn't exists!",
+            });
+        } else {
+            var updateObj = {
+                department_id: req.body.department_id,
+                fullName: req.body.fullName,
+                dob: req.body.dob,
+                role: req.body.role,
+                stat: req.body.stat,
+                email: req.body.email,
+            };
+
+            if (req.file) {
+                const filename = user.id + path.extname(req.file.originalname);
+                console.log(filename);
+                updateObj.avatar = ref(storage, "/avatar/" + filename);
+            }
+
+            const respond = await setUser(
+                collectionRef,
+                req.body.id,
+                updateObj
+            );
+            res.status(respond.code).send({
+                message: respond.message,
+            });
         }
-
-        const respond = await setUser(collectionRef, req.body.id, updateObj);
-        res.status(respond.code).send({
-            message: respond.message,
-        });
     }
 });
 
 router.delete("/", async (req, res) => {
-    const respond = await deleteDocument(collectionRef, req.body.id);
-    console.log("User deleted, ID: " + req.body.id);
-    res.status(respond.code).send({
-        message: respond.message,
-    });
+    if (req.body.id) {
+        const respond = await updateUser(req.body.id, {
+            stat: "Deactivated",
+        });
+        console.log("User deactivated, ID: " + req.body.id);
+        res.status(respond.code).send({
+            message: respond.message,
+        });
+    } else {
+        res.status(300).json({
+            message: "No id was provided!",
+        });
+    }
 });
 
 export default router;

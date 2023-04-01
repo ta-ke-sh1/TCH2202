@@ -179,6 +179,15 @@ const setUser = async (id, user) => {
     };
 };
 
+const updateUser = async (id, user) => {
+    const docRef = doc(db, "User", id[0], "User", id);
+    await updateDoc(docRef, user);
+    return {
+        code: 200,
+        message: "Updated document with id: " + id,
+    };
+};
+
 const fetchDocumentById = async (collectionRef, id) => {
     if (id != null) {
         const docRef = doc(db, collectionRef, id);
@@ -247,5 +256,6 @@ export {
     fetchUserById,
     setUser,
     addUser,
+    updateUser,
     deleteAllUsers,
 };

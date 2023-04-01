@@ -30,13 +30,6 @@ router.get("/", async (req, res) => {
     res.send(comments);
 });
 
-router.get("/", async (req, res) => {
-    const id = req.query.id;
-    var snapshot = await fetchDocumentById(collectionRef, id);
-    var dept = Comment.fromJson(snapshot.data(), snapshot.id);
-    res.send(dept);
-});
-
 router.post("/", async (req, res) => {
     var comment = new Comment(
         req.body.idea_id,
@@ -51,28 +44,44 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/", async (req, res) => {
-    var comment = new Comment(
-        req.body.id,
-        req.body.idea_id,
-        req.body.user_id,
-        req.body.content,
-        req.body.date,
-        req.body.isAnonymous,
-        req.body.react
-    );
-    const respond = await updateDocument(collectionRef, comment.id, comment);
-    console.log("Comment updated, ID: " + req.body.id);
-    res.status(respond.code).send({
-        message: respond.message,
-    });
+    if (!req.body.id) {
+        res.status(300).send({
+            message: "No id was provided",
+        });
+    } else {
+        var comment = new Comment(
+            req.body.id,
+            req.body.idea_id,
+            req.body.user_id,
+            req.body.content,
+            req.body.date,
+            req.body.isAnonymous,
+            req.body.react
+        );
+        const respond = await updateDocument(
+            collectionRef,
+            comment.id,
+            comment
+        );
+        console.log("Comment updated, ID: " + req.body.id);
+        res.status(respond.code).send({
+            message: respond.message,
+        });
+    }
 });
 
 router.delete("/", async (req, res) => {
-    const respond = await deleteDocument(collectionRef, req.query.id);
-    console.log("Comment deleted, ID: " + req.query.id);
-    res.status(respond.code).send({
-        message: respond.message,
-    });
+    if (!req.query.id) {
+        res.status(300).send({
+            message: "No id was provided",
+        });
+    } else {
+        const respond = await deleteDocument(collectionRef, req.query.id);
+        console.log("Comment deleted, ID: " + req.query.id);
+        res.status(respond.code).send({
+            message: respond.message,
+        });
+    }
 });
 
 export default router;

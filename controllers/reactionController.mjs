@@ -16,6 +16,7 @@ const reactionRef = Constants.ReactionRepository;
 router.get("/", async (req, res) => {
     const document = req.query.document;
     const user = req.query.user;
+    n;
     const reaction = parseInt(req.query.reaction);
 
     const snapshot = await fetchDocumentById(

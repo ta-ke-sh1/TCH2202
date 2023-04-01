@@ -42,24 +42,40 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/", async (req, res) => {
-    var department = new Department(
-        req.body.id,
-        req.body.name,
-        req.body.emp_count
-    );
-    const respond = await updateDocument(collection, department.id, department);
-    console.log("Department updated, ID: " + req.body.id);
-    res.status(respond.code).send({
-        message: respond.message,
-    });
+    if (!req.body.id) {
+        res.status(300).json({
+            message: "No id was provided!",
+        });
+    } else {
+        var department = new Department(
+            req.body.id,
+            req.body.name,
+            req.body.emp_count
+        );
+        const respond = await updateDocument(
+            collection,
+            department.id,
+            department
+        );
+        console.log("Department updated, ID: " + req.body.id);
+        res.status(respond.code).send({
+            message: respond.message,
+        });
+    }
 });
 
 router.delete("/", async (req, res) => {
-    const respond = await deleteDocument(collection, req.body.id);
-    console.log("Department deleted, ID: " + req.body.id);
-    res.status(respond.code).send({
-        message: respond.message,
-    });
+    if (!req.query.id) {
+        res.status(300).json({
+            message: "No id was provided!",
+        });
+    } else {
+        const respond = await deleteDocument(collection, req.query.id);
+        console.log("Department deleted, ID: " + req.query.id);
+        res.status(respond.code).send({
+            message: respond.message,
+        });
+    }
 });
 
 export default router;

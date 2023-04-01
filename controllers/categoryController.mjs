@@ -29,21 +29,33 @@ router.get("/", async (req, res) => {
 });
 
 router.delete("/", async (req, res) => {
-    const respond = await deleteDocument(collectionRef, req.body.id);
-    console.log("Comment deleted, ID: " + req.body.id);
-    res.status(respond.code).send({
-        message: respond.message,
-    });
+    if (!req.query.id) {
+        res.status(300).send({
+            message: "No id was provided",
+        });
+    } else {
+        const respond = await deleteDocument(collectionRef, req.query.id);
+        console.log("Comment deleted, ID: " + req.query.id);
+        res.status(respond.code).send({
+            message: respond.message,
+        });
+    }
 });
 
 router.put("/", async (req, res) => {
-    const name = req.body.name;
-    const adder = req.body.adder;
-    await updateDocument(collectionRef, req.body.id, {
-        name: name,
-        adder: adder,
-    });
-    res.status(200);
+    if (!req.body.id) {
+        res.status(300).send({
+            message: "No id was provided",
+        });
+    } else {
+        const name = req.body.name;
+        const adder = req.body.adder;
+        await updateDocument(collectionRef, req.body.id, {
+            name: name,
+            adder: adder,
+        });
+        res.status(200);
+    }
 });
 
 router.post("/", async (req, res) => {

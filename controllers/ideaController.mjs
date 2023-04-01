@@ -171,24 +171,29 @@ router.get("/sort", async (req, res) => {
 
 router.get("/category", async (req, res) => {
     const categoryId = req.query.id;
+    if (id) {
+        const ideas = [];
+        const docs = await fetchAllMatchingDocuments(
+            collectionRef,
+            "category",
+            categoryId
+        );
 
-    const ideas = [];
-    const docs = await fetchAllMatchingDocuments(
-        collectionRef,
-        "category",
-        categoryId
-    );
+        docs.forEach((snapshot) => {
+            ideas.push(Idea.fromJson(snapshot.data(), snapshot.id));
+            console.log(snapshot.data()["category"]);
+        });
 
-    docs.forEach((snapshot) => {
-        ideas.push(Idea.fromJson(snapshot.data(), snapshot.id));
-        console.log(snapshot.data()["category"]);
-    });
-
-    res.status(200).send({
-        success: true,
-        code: 200,
-        message: ideas,
-    });
+        res.status(200).json({
+            success: true,
+            code: 200,
+            message: ideas,
+        });
+    } else {
+        res.status(300).json({
+            message: "No id was provided",
+        });
+    }
 });
 
 router.post("/", upload.array("items", 10), async (req, res) => {
@@ -232,16 +237,18 @@ router.post("/", upload.array("items", 10), async (req, res) => {
 });
 
 router.get("/accessed", async (req, res) => {
-    const id = req.query.id;
-    const idea = await fetchDocumentById(collectionRef, id);
-    if (idea) {
-        var i = idea.data();
-        i.visit_count = i.visit_count + 1;
-        await updateDocument(collectionRef, id, i);
+    if (id) {
+        const id = req.query.id;
+        const idea = await fetchDocumentById(collectionRef, id);
+        if (idea) {
+            var i = idea.data();
+            i.visit_count = i.visit_count + 1;
+            await updateDocument(collectionRef, id, i);
+        }
+        res.status(200);
+    } else {
+        res.status(300).json({ message: "No ID was provided" });
     }
-
-    const metricReport = await fetchReportByDate();
-    res.status(200);
 });
 
 router.put("/", async (req, res) => {
@@ -268,11 +275,17 @@ router.put("/", async (req, res) => {
 });
 
 router.get("/delete", async (req, res) => {
-    const respond = await deleteDocument(collectionRef, req.body.id);
-    console.log("Idea deleted, ID: " + req.body.id);
-    res.status(respond.code).send({
-        message: respond.message,
-    });
+    if (req.body.id) {
+        const respond = await deleteDocument(collectionRef, req.body.id);
+        console.log("Idea deleted, ID: " + req.body.id);
+        res.status(respond.code).send({
+            message: respond.message,
+        });
+    } else {
+        res.status(300).json({
+            message: "No id was provided!",
+        });
+    }
 });
 
 export default router;

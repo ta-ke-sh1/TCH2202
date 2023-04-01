@@ -43,16 +43,26 @@ router.get("/", async (req, res) => {
 });
 
 router.put("/", async (req, res) => {
-    var updateObj = {
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
-        closedDate: req.body.closedDate,
-        description: req.body.description,
-        name: req.body.name,
-    };
+    if (!req.body.id) {
+        res.status(300).json({
+            message: "No id was provided!",
+        });
+    } else {
+        var updateObj = {
+            startDate: req.body.startDate,
+            endDate: req.body.endDate,
+            closedDate: req.body.closedDate,
+            description: req.body.description,
+            name: req.body.name,
+        };
 
-    const respond = await updateDocument(collectionRef, req.body.id, updateObj);
-    res.status(200).json(respond);
+        const respond = await updateDocument(
+            collectionRef,
+            req.body.id,
+            updateObj
+        );
+        res.status(200).json(respond);
+    }
 });
 
 router.post("/", async (req, res) => {
@@ -69,8 +79,14 @@ router.post("/", async (req, res) => {
 });
 
 router.delete("/", async (req, res) => {
-    await deleteDocument(collectionRef, req.query.id);
-    res.status(200);
+    if (!req.query.id) {
+        res.status(300).json({
+            message: "No id was provided!",
+        });
+    } else {
+        await deleteDocument(collectionRef, req.query.id);
+        res.status(200);
+    }
 });
 
 export default router;
