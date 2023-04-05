@@ -8,6 +8,7 @@ import {
     fetchAllMatchingDocuments,
     fetchAllContainingDocuments,
     fetchAllMatchingDocumentsWithinRange,
+    setDocument,
 } from "../service/firebaseHelper.mjs";
 import { Idea } from "../model/idea.mjs";
 import * as Constants from "../utils/constants.mjs";
@@ -236,7 +237,8 @@ router.post("/", upload.array("items", 10), async (req, res) => {
         req.body.thread,
         req.body.visit_count,
         req.body.stat,
-        req.body.is_anonymous
+        req.body.is_anonymous,
+        req.body.hashtag.split(",")
     );
 
     if (req.files) {
@@ -261,6 +263,16 @@ router.post("/", upload.array("items", 10), async (req, res) => {
                 idea: cat.data().idea + 1,
             }
         );
+    }
+
+    for (let i = 0; i < req.body.hashtag.split(",").length; i++) {
+        var hashtag = await fetchDocumentById(
+            "Hashtag",
+            req.body.hashtag.split(",")[i]
+        );
+        if (!hashtag) {
+            await setDocument("Hashtag", req.body.hashtag.split(",")[i], {});
+        }
     }
 
     const receiver = req.body.approver_id;
@@ -292,15 +304,18 @@ router.get("/accessed", async (req, res) => {
 
 router.put("/", async (req, res) => {
     var idea = new Idea(
-        req.body.id,
         req.body.writer_id,
         req.body.approver_id,
-        req.body.file,
         req.body.post_date,
         req.body.expiration_date,
+        req.body.category.split(","),
+        req.body.title,
+        req.body.content,
+        req.body.file,
         req.body.visit_count,
         req.body.stat,
-        req.body.is_anonymous
+        req.body.is_anonymous,
+        req.body.hashtag
     );
     const respond = await updateDocument(
         collectionRef,

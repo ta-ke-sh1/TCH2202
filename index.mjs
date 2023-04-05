@@ -9,6 +9,7 @@ import categoryController from "./controllers/categoryController.mjs";
 import reactionController from "./controllers/reactionController.mjs";
 import testController from "./controllers/testController.mjs";
 import eventController from "./controllers/eventController.mjs";
+import hashtagController from "./controllers/hashtagController.mjs";
 import { authorize, containsRole } from "./service/tokenAuth.mjs";
 import { isExists } from "./service/tokenAuth.mjs";
 import jwt from "jsonwebtoken";
@@ -50,6 +51,8 @@ app.use("/reaction", reactionController);
 app.use("/test", testController);
 
 app.use("/thread", eventController);
+
+app.use("/hashtag", hashtagController);
 
 app.post("/login", async (req, res) => {
     const username = req.body.username;
