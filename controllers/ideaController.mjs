@@ -6,6 +6,7 @@ import {
     deleteDocument,
     updateDocument,
     fetchAllMatchingDocuments,
+    fetchAllContainingDocuments,
     fetchAllMatchingDocumentsWithinRange,
 } from "../service/firebaseHelper.mjs";
 import { Idea } from "../model/idea.mjs";
@@ -63,6 +64,27 @@ router.get("/threads", async (req, res) => {
             });
         }
         res.status(200).json(result);
+    }
+});
+
+router.get("/filter", async (req, res) => {
+    const category = req.query.category;
+    if (category) {
+        var ideas = [];
+        var snapshots = await fetchAllContainingDocuments(
+            collectionRef,
+            "category",
+            category
+        );
+        snapshots.forEach((snapshot) => {
+            ideas.push({
+                idea: Idea.fromJson(snapshot.data()),
+                id: snapshot.id,
+            });
+        });
+        res.status(200).send(ideas);
+    } else {
+        res.status(300).json({ message: "Need a category indicator!" });
     }
 });
 
@@ -207,7 +229,7 @@ router.post("/", upload.array("items", 10), async (req, res) => {
         req.body.approver_id,
         req.body.post_date,
         req.body.approved_date,
-        req.body.category,
+        req.body.category.split(","),
         req.body.title,
         req.body.content,
         fileNames,
@@ -225,14 +247,32 @@ router.post("/", upload.array("items", 10), async (req, res) => {
     }
     await addDocument(collectionRef, idea);
 
+    for (let i = 0; i < req.body.category.split(",").length; i++) {
+        console.log(req.body.category.split(",")[i]);
+        var cat = await fetchDocumentById(
+            Constants.CategoryRepository,
+            req.body.category.split(",")[i]
+        );
+        console.log(cat.data());
+        await updateDocument(
+            Constants.CategoryRepository,
+            req.body.category.split(",")[i],
+            {
+                idea: cat.data().idea + 1,
+            }
+        );
+    }
+
     const receiver = req.body.approver_id;
     sendMail(receiver, "New post added", "Sender: " + req.body.writer_id);
+
+    updateDocumentMetrics("Idea");
+    console.log("Idea added, ID: " + req.body.id);
+
     res.status(200).send({
         success: true,
         message: idea,
     });
-    updateDocumentMetrics("Idea");
-    console.log("Idea added, ID: " + req.body.id);
 });
 
 router.get("/accessed", async (req, res) => {

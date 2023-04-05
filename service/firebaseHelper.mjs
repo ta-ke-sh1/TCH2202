@@ -117,6 +117,19 @@ const fetchAllMatchingDocuments = async (document, criteria, keyword) => {
     return documents;
 };
 
+const fetchAllContainingDocuments = async (document, criteria, keyword) => {
+    const documents = [];
+    const q = query(
+        collection(db, document),
+        where(criteria, "array-contains", keyword)
+    );
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+        documents.push(doc);
+    });
+    return documents;
+};
+
 const fetchAllMatchingDocumentsCount = async (document, criteria, keyword) => {
     const q = query(collection(db, document), where(criteria, "==", keyword));
     const snapshot = await getCountFromServer(q);
@@ -245,6 +258,7 @@ export {
     fetchAllDocuments,
     fetchAllMatchingDocuments,
     fetchAllMatchingDocumentsCount,
+    fetchAllContainingDocuments,
     fetchAllMatchingDocumentsWithinRange,
     fetchDocumentById,
     addDocument,
