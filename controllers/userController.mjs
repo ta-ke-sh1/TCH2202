@@ -1,9 +1,5 @@
 import express from "express";
 import {
-    fetchAllDocuments,
-    fetchDocumentById,
-    deleteDocument,
-    updateDocument,
     updateUser,
     fetchUserById,
     fetchAllUsers,
@@ -12,7 +8,6 @@ import { register } from "../service/tokenAuth.mjs";
 import { User } from "../model/user.mjs";
 import * as Constants from "../utils/constants.mjs";
 import bcrypt from "bcryptjs";
-import { addMockUsers, clearDocument } from "../utils/mockHelper.mjs";
 
 const router = express.Router();
 const collectionRef = Constants.UserRepository;

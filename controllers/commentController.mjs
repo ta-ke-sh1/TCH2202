@@ -1,14 +1,16 @@
 import express from "express";
 import {
     fetchAllMatchingDocuments,
-    fetchDocumentById,
     addDocument,
     deleteDocument,
     updateDocument,
+    fetchUserById,
+    fetchDocumentById,
 } from "../service/firebaseHelper.mjs";
 import { Comment } from "../model/comment.mjs";
 import * as Constants from "../utils/constants.mjs";
 import { updateDocumentMetrics } from "../service/metrics.mjs";
+import { sendMail } from "../service/mail.mjs";
 
 const router = express.Router();
 const collectionRef = Constants.CommentRepository;
@@ -31,6 +33,7 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+    console.log(req.body.user_id);
     var comment = new Comment(
         req.body.idea_id,
         req.body.user_id,
@@ -39,7 +42,22 @@ router.post("/", async (req, res) => {
         req.body.isAnonymous
     );
     const response = await addDocument(collectionRef, comment);
+
     updateDocumentMetrics("Comment");
+
+    var idea = await fetchDocumentById(
+        Constants.IdeaRepository,
+        req.body.idea_id
+    );
+    var u = await fetchUserById(idea.data().writer_id);
+    if (u) {
+        console.log(u.data());
+        sendMail(
+            u.data().email,
+            "New comment to your post",
+            req.body.user_id + " has commented: " + req.body.content
+        );
+    }
     res.status(200).json(response);
 });
 

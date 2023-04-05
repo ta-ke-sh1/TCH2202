@@ -1,22 +1,16 @@
 import express from "express";
 import {
-    addDocument,
     fetchAllMatchingDocuments,
     fetchDocumentById,
-    updateDocument,
     setDocument,
 } from "../service/firebaseHelper.mjs";
 import * as Constants from "../utils/constants.mjs";
-import { Reaction } from "../model/react.mjs";
-import { isExists } from "../service/tokenAuth.mjs";
-
 const router = express.Router();
 const reactionRef = Constants.ReactionRepository;
 
 router.get("/", async (req, res) => {
     const document = req.query.document;
     const user = req.query.user;
-    n;
     const reaction = parseInt(req.query.reaction);
 
     const snapshot = await fetchDocumentById(

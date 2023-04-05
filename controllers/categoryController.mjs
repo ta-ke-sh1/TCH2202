@@ -1,10 +1,10 @@
 import express from "express";
 import { initializeApp } from "firebase/app";
 import {
-    addDocument,
-    fetchDocumentById,
     updateDocument,
     fetchAllDocuments,
+    fetchDocumentById,
+    deleteDocument,
 } from "../service/firebaseHelper.mjs";
 
 import { getFirestore, setDoc, doc } from "firebase/firestore";
@@ -22,6 +22,7 @@ router.get("/", async (req, res) => {
     for (let i = 0; i < snapshots.length; i++) {
         categories.push({
             id: snapshots[i].id,
+            idea: snapshots[i].data()["idea"],
             addedBy: snapshots[i].data()["addedBy"],
         });
     }
@@ -34,11 +35,18 @@ router.delete("/", async (req, res) => {
             message: "No id was provided",
         });
     } else {
-        const respond = await deleteDocument(collectionRef, req.query.id);
-        console.log("Comment deleted, ID: " + req.query.id);
-        res.status(respond.code).send({
-            message: respond.message,
-        });
+        var category = await fetchDocumentById(collectionRef, req.query.id);
+        if (category.data().idea > 0) {
+            res.status(300).send({
+                message: "This category still have ideas that contain it",
+            });
+        } else {
+            const respond = await deleteDocument(collectionRef, req.query.id);
+            console.log("Comment deleted, ID: " + req.query.id);
+            res.status(respond.code).send({
+                message: respond.message,
+            });
+        }
     }
 });
 

@@ -11,7 +11,6 @@ import {
 import { Idea } from "../model/idea.mjs";
 import * as Constants from "../utils/constants.mjs";
 import { sendMail } from "../service/mail.mjs";
-import { containsRole } from "../service/tokenAuth.mjs";
 
 import * as path from "path";
 

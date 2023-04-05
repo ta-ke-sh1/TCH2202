@@ -1,10 +1,4 @@
 import express from "express";
-import {
-    deleteAllUsers,
-    fetchAllDateNestedDocuments,
-    fetchDocumentWhereDocumentId,
-} from "../service/firebaseHelper.mjs";
-import * as Constants from "../utils/constants.mjs";
 import { containsRole } from "../service/tokenAuth.mjs";
 import {
     addMockComments,
@@ -14,10 +8,7 @@ import {
     addMockMetrics,
     addMockUsers,
 } from "../utils/mockHelper.mjs";
-import {
-    getCurrentDateAsDBFormat,
-    getCurrentDateAsFirestoreFormat,
-} from "../utils/utils.mjs";
+import { getCurrentDateAsDBFormat } from "../utils/utils.mjs";
 import { fetchDepartmentReportByDuration } from "../service/metricsHelper.mjs";
 
 const router = express.Router();
