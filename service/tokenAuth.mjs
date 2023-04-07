@@ -65,12 +65,12 @@ const register = async (document) => {
     }
 
     try {
-        console.log(document);
+        console.log(document.username[0].toLowerCase());
         await setDoc(
             doc(
                 db,
                 constants.UserRepository,
-                document.username[0].toLowercase(),
+                document.username[0].toLowerCase(),
                 constants.UserRepository,
                 document.username
             ),

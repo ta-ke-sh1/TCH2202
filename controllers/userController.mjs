@@ -78,6 +78,7 @@ router.post("/", upload.single("avatar"), async (req, res) => {
         req.body.email
     );
 
+    console.log(user);
     var result = await register(user);
 
     res.status(result.code).json({
