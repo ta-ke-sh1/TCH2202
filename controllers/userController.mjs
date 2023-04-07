@@ -50,7 +50,7 @@ router.get("/", async (req, res) => {
         var snapshots = await fetchAllUsers(collectionRef);
         console.log("User Page");
         snapshots.forEach((snapshot) => {
-            users.push(User.fromJson(snapshot.data(), snapshot.id));
+            users.push(User.fromJson(snapshot, snapshot.id));
         });
         console.log(users.length);
         res.send(users);

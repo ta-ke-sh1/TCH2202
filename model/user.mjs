@@ -1,5 +1,5 @@
 export class User {
-    constructor (
+    constructor(
         department_id,
         username,
         password,
