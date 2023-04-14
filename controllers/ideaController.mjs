@@ -137,6 +137,17 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get('/file', async (req, res) => {
+    var id = req.query.id;
+    var fileName = req.query.fileName;
+    var __dirname = path.resolve(path.dirname(''));
+    res.set({
+        'Content-Disposition': `attachment; filename='${fileName}'`,
+    });
+    const file = `${__dirname}/assets/files/` + id + "/" + fileName;
+    res.download(file)
+})
+
 router.get("/sort", async (req, res) => {
     const thread = req.query.thread;
     const startDate = req.query.startDate;

@@ -105,12 +105,12 @@ async function addMockMetrics(duration) {
 
 async function addMockIdeas(number) {
     const categories = {
-        1: "Teaching Quality",
-        2: "Scheduling",
-        3: "Equipment",
-        4: "Human Resources",
-        5: "Funding",
-        6: "Sanitary",
+        1: "6YfqEukmUOYMnAzB8rb4",
+        2: "OywGBqMB96Rrq5Ru7wdR",
+        3: "XSdMR6fwKGsRt1QlZ1DD",
+        4: "ajYrLaggzlrX5Ir6cxdL",
+        5: "hwkBFFgklwgYmsn4HgZk",
+        6: "roM1oVFUT1Mj4NM5v6GP",
     };
 
     const threads = {
@@ -131,18 +131,19 @@ async function addMockIdeas(number) {
             }
         }
         var idea = new Idea(
-            users[getRndInteger(1, 10)],
+            users[getRndInteger(1, 10)].id,
             "admin",
             "2023/3/" + getRndInteger(10, 15),
             "2023/3/" + getRndInteger(15, 20),
             cat,
             "Lorem Ipsum Sit Dolor",
             loremIpsum,
-            "",
+            [],
             threads[getRndInteger(1, 4)],
             0,
             "Approved",
-            false
+            false,
+            []
         );
         await addDoc(collection(db, ideaCollectionRef), idea.toJson());
     }
@@ -154,7 +155,7 @@ async function addMockComments(number) {
     for (var i = 0; i < number; i++) {
         var comment = new Comment(
             ideas[getRndInteger(0, ideas.length - 1)].id,
-            users[getRndInteger(0, users.length - 1)],
+            users[getRndInteger(0, users.length - 1)].id,
             "Lorem ipsum sit dolor",
             Date.now() / 1000,
             0

@@ -22,8 +22,7 @@ router.get("/", async (req, res) => {
     for (let i = 0; i < snapshots.length; i++) {
         categories.push({
             id: snapshots[i].id,
-            idea: snapshots[i].data()["idea"],
-            addedBy: snapshots[i].data()["addedBy"],
+            name: snapshots[i].data()["name"],
         });
     }
     res.status(200).json(categories);
