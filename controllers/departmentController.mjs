@@ -55,7 +55,7 @@ router.put("/", async (req, res) => {
         const respond = await updateDocument(
             collection,
             department.id,
-            department
+            department.toJson()
         );
         console.log("Department updated, ID: " + req.body.id);
         res.status(respond.code).send({

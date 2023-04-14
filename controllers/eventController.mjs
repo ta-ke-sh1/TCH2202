@@ -33,6 +33,7 @@ router.get("/", async (req, res) => {
                 id: threads[i].id,
                 name: threads[i].data().name,
                 startDate: threads[i].data().startDate,
+                closedDate: threads[i].data().closedDate,
                 endDate: threads[i].data().endDate,
                 description: threads[i].data().description,
                 ideaCount: threads[i].data().ideaCount,
