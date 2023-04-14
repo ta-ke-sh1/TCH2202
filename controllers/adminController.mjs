@@ -132,7 +132,7 @@ router.post('/createThread', async (req, res) => {
 })
 
 router.get("/createThreadReport", async (req, res) => {
-    const id = req.query.thread;
+    const id = req.query.id;
     var thread = await fetchDocumentById('thread', id);
     var currentDateTime = new Date();
     if (!thread) {
@@ -157,10 +157,11 @@ router.get("/createThreadReport", async (req, res) => {
         for (let i = 0; i < ideas.length; i++) {
             appendFileSync(fileName, Idea.fromJson(ideas[i].data()).toCSV());
         }
-
-        res.status(300).send({
-            message: 'You can download now!',
+        res.set({
+            'Content-Disposition': `attachment; filename='${fileName}'`,
         });
+        const file = "summary_file/csv/Thread Summary-" + id + ".csv";
+        res.status(200).download(file);
     }
 });
 
@@ -185,6 +186,10 @@ router.get("/zipDirectory", containsRole("Admin"), async (req, res) => {
         ".zip";
     var _in = path.resolve() + "\\assets\\files\\";
     await zip(_in, _out);
+    res.set({
+        'Content-Disposition': `attachment; filename='${"\\summary_file\\summary" +
+            new Date().toJSON().slice(0, 10).replace(/-/g, "-")}'`,
+    });
     res.status(200).download(_out);
 });
 
