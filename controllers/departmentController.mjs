@@ -34,9 +34,10 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-    var department = new Department(null, req.body.name, 0);
-    console.log(department);
-    await addDocument(collection, department);
+    await addDocument(collection, {
+        name: req.body.name,
+        emp_count: 0,
+    });
     console.log("New Department Added");
     console.log("Department added, ID: " + req.body.id);
 });
@@ -47,11 +48,6 @@ router.put("/", async (req, res) => {
             message: "No id was provided!",
         });
     } else {
-        var department = new Department(
-            req.body.id,
-            req.body.name,
-            req.body.emp_count
-        );
         const respond = await updateDocument(
             collection,
             department.id,

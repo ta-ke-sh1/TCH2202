@@ -37,6 +37,7 @@ router.get("/", async (req, res) => {
         var snapshot = await fetchUserById(id);
         if (snapshot) {
             var user = User.fromJson(snapshot.data(), snapshot.id);
+            console.log(user);
             res.status(200).send(user);
         } else {
             res.status(400).send({

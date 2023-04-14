@@ -36,7 +36,7 @@ router.post("/", containsRole("Admin"), async (req, res) => {
 });
 
 router.get("/clearMock", async (req, res) => {
-    clearDocument("Reaction");
+    clearDocument("Idea");
     res.status(200).send({
         success: true,
         code: 200,
@@ -46,7 +46,7 @@ router.get("/clearMock", async (req, res) => {
 
 router.get("/addReaction", async (req, res) => {
     var count = parseInt(req.query.count);
-    addMockReaction(400);
+    addMockReaction(100);
     res.status(200).send({
         success: true,
         code: 200,
@@ -56,7 +56,7 @@ router.get("/addReaction", async (req, res) => {
 
 router.get("/addComments", async (req, res) => {
     var count = parseInt(req.query.count);
-    addMockComments(200);
+    addMockComments(50);
     res.status(200).send({
         success: true,
         code: 200,
@@ -65,11 +65,10 @@ router.get("/addComments", async (req, res) => {
 });
 
 router.get("/addIdeas", async (req, res) => {
-    addMockIdeas(100);
+    addMockIdeas(40);
     res.status(200).send({
         success: true,
         code: 200,
-        message: count + " new ideas added",
     });
 });
 

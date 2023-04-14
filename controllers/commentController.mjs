@@ -69,17 +69,15 @@ router.put("/", async (req, res) => {
     } else {
         var comment = new Comment(
             req.body.id,
-            req.body.idea_id,
             req.body.user_id,
             req.body.content,
             req.body.date,
             req.body.isAnonymous,
-            req.body.react
         );
         const respond = await updateDocument(
             collectionRef,
             comment.id,
-            comment
+            comment.toJson()
         );
         console.log("Comment updated, ID: " + req.body.id);
         res.status(respond.code).send({
