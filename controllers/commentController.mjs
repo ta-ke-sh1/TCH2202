@@ -42,14 +42,8 @@ router.post("/", async (req, res) => {
         req.body.isAnonymous
     );
     const response = await addDocument(collectionRef, comment);
-
     updateDocumentMetrics("Comment");
-
-    var idea = await fetchDocumentById(
-        Constants.IdeaRepository,
-        req.body.idea_id
-    );
-    var u = await fetchUserById(idea.data().writer_id);
+    var u = await fetchUserById(req.body.writer_id);
     if (u) {
         console.log(u.data());
         sendMail(
@@ -72,7 +66,7 @@ router.put("/", async (req, res) => {
             req.body.user_id,
             req.body.content,
             req.body.date,
-            req.body.isAnonymous,
+            req.body.isAnonymous
         );
         const respond = await updateDocument(
             collectionRef,

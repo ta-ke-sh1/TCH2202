@@ -9,10 +9,11 @@ import {
     fetchAllContainingDocuments,
     fetchAllMatchingDocumentsWithinRange,
     setDocument,
+    fetchUserById,
 } from "../service/firebaseHelper.mjs";
 import { Idea } from "../model/idea.mjs";
 import * as Constants from "../utils/constants.mjs";
-import { sendMail } from "../service/mail.mjs";
+import { sendMail, sendMailToCoordinator } from "../service/mail.mjs";
 
 import * as path from "path";
 
@@ -262,8 +263,13 @@ router.post("/", upload.array("items", 10), async (req, res) => {
         return;
     }
 
-    await addDocument(collectionRef, idea);
+    var user = await fetchUserById(req.body.writer_id);
+    if (user.data().department_id) {
+        console.log(user.data());
+        sendMailToCoordinator(user.data().department_id, "");
+    }
 
+    await addDocument(collectionRef, idea);
     for (let i = 0; i < req.body.category.length; i++) {
         console.log(req.body.category[i]);
         var cat = await fetchDocumentById(
@@ -279,7 +285,6 @@ router.post("/", upload.array("items", 10), async (req, res) => {
             }
         );
     }
-
     for (let i = 0; i < req.body.hashtag.length; i++) {
         var hashtag = await fetchDocumentById("Hashtag", req.body.hashtag[i]);
         if (!hashtag) {
@@ -287,15 +292,11 @@ router.post("/", upload.array("items", 10), async (req, res) => {
         }
     }
 
-    const receiver = req.body.approver_id;
-    sendMail(receiver, "New post added", "Sender: " + req.body.writer_id);
-
     updateDocumentMetrics("Idea");
     console.log("Idea added, ID: " + req.body.id);
 
     res.status(200).send({
         success: true,
-        message: idea,
     });
 });
 

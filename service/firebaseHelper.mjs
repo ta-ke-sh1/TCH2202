@@ -153,6 +153,25 @@ const fetchAllUsers = async () => {
     return documents;
 };
 
+const fetchAllCoordinatorsByDepartment = async (department) => {
+    const documents = [];
+    var alphabet = "abcdefghijklmnopqrstuvwyxyz".split("");
+    for (var i = 0; i < alphabet.length; i++) {
+        const q = query(
+            collection(db, "User", alphabet[i], "User"),
+            where("department_id", "==", department),
+            where("role", "array-contains", "QAC")
+        );
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            var data = doc.data();
+            data.id = doc.id;
+            documents.push(data);
+        });
+    }
+    return documents;
+};
+
 const deleteAllUsers = async () => {
     var batch = writeBatch(db);
     var alphabet = "abcdefghijklmnopqrstuvwyxyz".split("");
@@ -268,6 +287,7 @@ export {
     fetchDocumentWhereDocumentId,
     fetchAllUsers,
     fetchUserById,
+    fetchAllCoordinatorsByDepartment,
     setUser,
     addUser,
     updateUser,

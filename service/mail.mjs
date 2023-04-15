@@ -1,5 +1,6 @@
 import nodeMailer from "nodemailer";
 import * as constants from "../utils/constants.mjs";
+import { fetchAllCoordinatorsByDepartment } from "./firebaseHelper.mjs";
 
 const transporter = nodeMailer.createTransport({
     port: 465,
@@ -11,9 +12,9 @@ const transporter = nodeMailer.createTransport({
     secure: true,
 });
 
-function sendMail(reciever, header, content) {
+async function sendMail(reciever, header, content) {
     const mailData = {
-        from: "trunght.yrc@gmail.com",
+        from: constants.emailHost,
         to: reciever,
         text: header,
         html:
@@ -27,4 +28,26 @@ function sendMail(reciever, header, content) {
     });
 }
 
-export { sendMail };
+async function sendMailToUser(user, content) {
+    await sendMail(
+        user,
+        "New Comment has been added",
+        "New Comment has been added<br>" + content
+    );
+}
+
+async function sendMailToCoordinator(department, content) {
+    const coordinators = await fetchAllCoordinatorsByDepartment(department);
+    for (let i = 0; i < coordinators.length; i++) {
+        await sendMail(
+            coordinators[i].email,
+            "New Idea added",
+            "New Idea has been added<br>" + content
+        );
+        console.log("email sent");
+    }
+}
+
+async function getMailContent() {}
+
+export { sendMail, sendMailToCoordinator, sendMailToUser, getMailContent };

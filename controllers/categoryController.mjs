@@ -5,6 +5,7 @@ import {
     fetchAllDocuments,
     fetchDocumentById,
     deleteDocument,
+    addDocument,
 } from "../service/firebaseHelper.mjs";
 
 import { getFirestore, setDoc, doc } from "firebase/firestore";
@@ -56,10 +57,8 @@ router.put("/", async (req, res) => {
         });
     } else {
         const name = req.body.name;
-        const adder = req.body.adder;
         await updateDocument(collectionRef, req.body.id, {
             name: name,
-            adder: adder,
         });
         res.status(200);
     }
@@ -67,9 +66,9 @@ router.put("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
     const name = req.body.name;
-    const adder = req.body.adder;
-    await setDoc(doc(db, collectionRef, name), {
-        addedBy: adder,
+    await addDocument("Category", {
+        idea: 0,
+        name: name,
     });
     res.status(200);
 });
