@@ -60,6 +60,7 @@ router.get("/threads", async (req, res) => {
                 name: threads[i].data().name,
                 startDate: threads[i].data().startDate,
                 endDate: threads[i].data().endDate,
+                closedDate: threads[i].data().closedDate,
                 description: threads[i].data().description,
                 ideaCount: threads[i].data().ideaCount,
             });
@@ -137,16 +138,16 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get('/file', async (req, res) => {
+router.get("/file", async (req, res) => {
     var id = req.query.id;
     var fileName = req.query.fileName;
-    var __dirname = path.resolve(path.dirname(''));
+    var __dirname = path.resolve(path.dirname(""));
     res.set({
-        'Content-Disposition': `attachment; filename='${fileName}'`,
+        "Content-Disposition": `attachment; filename='${fileName}'`,
     });
     const file = `${__dirname}/assets/files/` + id + "/" + fileName;
-    res.download(file)
-})
+    res.download(file);
+});
 
 router.get("/sort", async (req, res) => {
     const thread = req.query.thread;
@@ -241,7 +242,7 @@ router.post("/", upload.array("items", 10), async (req, res) => {
         req.body.approver_id,
         req.body.post_date,
         req.body.approved_date,
-        req.body.category.split(","),
+        req.body.category,
         req.body.title,
         req.body.content,
         fileNames,
@@ -249,8 +250,10 @@ router.post("/", upload.array("items", 10), async (req, res) => {
         req.body.visit_count,
         req.body.stat,
         req.body.is_anonymous,
-        req.body.hashtag.split(",")
+        []
     );
+
+    console.log(idea.toCSV());
 
     if (req.files) {
         console.log(req.files.path);
@@ -258,31 +261,29 @@ router.post("/", upload.array("items", 10), async (req, res) => {
         console.log("No files attached");
         return;
     }
+
     await addDocument(collectionRef, idea);
 
-    for (let i = 0; i < req.body.category.split(",").length; i++) {
-        console.log(req.body.category.split(",")[i]);
+    for (let i = 0; i < req.body.category.length; i++) {
+        console.log(req.body.category[i]);
         var cat = await fetchDocumentById(
             Constants.CategoryRepository,
-            req.body.category.split(",")[i]
+            req.body.category[i]
         );
         console.log(cat.data());
         await updateDocument(
             Constants.CategoryRepository,
-            req.body.category.split(",")[i],
+            req.body.category[i],
             {
                 idea: cat.data().idea + 1,
             }
         );
     }
 
-    for (let i = 0; i < req.body.hashtag.split(",").length; i++) {
-        var hashtag = await fetchDocumentById(
-            "Hashtag",
-            req.body.hashtag.split(",")[i]
-        );
+    for (let i = 0; i < req.body.hashtag.length; i++) {
+        var hashtag = await fetchDocumentById("Hashtag", req.body.hashtag[i]);
         if (!hashtag) {
-            await setDocument("Hashtag", req.body.hashtag.split(",")[i], {});
+            await setDocument("Hashtag", req.body.hashtag[i], {});
         }
     }
 
@@ -319,14 +320,14 @@ router.put("/", async (req, res) => {
         req.body.approver_id,
         req.body.post_date,
         req.body.expiration_date,
-        req.body.category.split(","),
+        req.body.category,
         req.body.title,
         req.body.content,
         req.body.file,
         req.body.visit_count,
         req.body.stat,
         req.body.is_anonymous,
-        req.body.hashtag
+        []
     );
     const respond = await updateDocument(
         collectionRef,
