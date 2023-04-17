@@ -95,7 +95,7 @@ const authorize = async (username, password) => {
     if (!user) {
         return {
             code: 406,
-            message: "no such document",
+            message: "User does not exists!",
         };
     }
 

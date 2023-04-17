@@ -58,7 +58,7 @@ app.post("/login", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const device_type = req.body.device_type;
-    if (username === undefined || password === undefined) {
+    if (username === undefined || password === undefined || username === "" || password === "") {
         res.status(300).send({
             message: "Invalid password/username!",
         });
