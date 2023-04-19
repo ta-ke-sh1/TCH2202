@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
         const id = req.query.id;
         var snapshot = await fetchDocumentById(collection, id);
         if (snapshot) {
-            var dept = Department.fromJson(snapshot.data(), snapshot.id);
+            var dept = Department.fromJson(snapshot.data(), snapshot.id)
             res.send(dept);
             return;
         }

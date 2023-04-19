@@ -22,7 +22,6 @@ import * as path from "path";
 import multer from "multer";
 import fs from "fs";
 import { updateDocumentMetrics } from "../service/metrics.mjs";
-import { writer } from "repl";
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -75,7 +74,29 @@ router.get("/threads", async (req, res) => {
 
 router.get("/department", async (req, res) => {
     const id = req.query.id;
-    if (id) {
+    const thread = req.query.thread;
+    if (thread && id) {
+        var ideas = [];
+        var writers = await fetchAllUsersByDepartment(id);
+        console.log(writers);
+        for (let i = 0; i < writers.length; i++) {
+            var snapshots = await fetchAllMatchingDocuments(
+                "Idea",
+                "writer_id",
+                writers[i].id
+            );
+            snapshots.forEach((snapshot) => {
+                if (snapshot.data().thread === thread) {
+                    ideas.push({
+                        idea: Idea.fromJson(snapshot.data()),
+                        id: snapshot.id,
+                    });
+                }
+            });
+        }
+        res.status(200).send(ideas);
+    }
+    else if (id) {
         var ideas = [];
         var writers = await fetchAllUsersByDepartment(id);
         console.log(writers);
@@ -183,7 +204,7 @@ router.get("/sortByLike", async (req, res) => {
     const asc = req.query.asc;
     let ideas = [];
 
-    console.log("thread id: " + thread);
+    console.log("thread id: " + asc);
 
     const docs = await fetchAllMatchingDocuments(
         collectionRef,
@@ -209,9 +230,14 @@ router.get("/sortByLike", async (req, res) => {
         return a.like_count - b.like_count;
     });
 
-    console.log(ideas.length);
+    const reversedArray = []
 
-    res.status(200).json({ ideas });
+    for (let i = ideas.length - 1; i >= 0; i--) {
+        const valueAtIndex = ideas[i]
+        reversedArray.push(valueAtIndex)
+    }
+
+    asc === '0' ? res.status(200).json({ ideas: ideas }) : res.status(200).json({ ideas: reversedArray });
 });
 
 router.get("/sort", async (req, res) => {
