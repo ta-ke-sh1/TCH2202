@@ -58,7 +58,12 @@ app.post("/login", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const device_type = req.body.device_type;
-    if (username === undefined || password === undefined || username === "" || password === "") {
+    if (
+        username === undefined ||
+        password === undefined ||
+        username === "" ||
+        password === ""
+    ) {
         res.status(300).send({
             message: "Invalid password/username!",
         });
@@ -84,8 +89,9 @@ app.post("/refresh", async (req, res) => {
                     jwt.sign(
                         {
                             user: user.id,
-                            email: user.email,
+                            email: user.data().email,
                             role: user.data().role,
+                            avatar: user.data().avatar,
                         },
                         process.env.JWT_SECRET_ACCESS,
                         {

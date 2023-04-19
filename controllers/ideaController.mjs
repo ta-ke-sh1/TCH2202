@@ -10,6 +10,8 @@ import {
     fetchAllMatchingDocumentsWithinRange,
     setDocument,
     fetchUserById,
+    fetchAllUsers,
+    fetchAllUsersByDepartment,
 } from "../service/firebaseHelper.mjs";
 import { Idea } from "../model/idea.mjs";
 import * as Constants from "../utils/constants.mjs";
@@ -20,6 +22,7 @@ import * as path from "path";
 import multer from "multer";
 import fs from "fs";
 import { updateDocumentMetrics } from "../service/metrics.mjs";
+import { writer } from "repl";
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -67,6 +70,31 @@ router.get("/threads", async (req, res) => {
             });
         }
         res.status(200).json(result);
+    }
+});
+
+router.get("/department", async (req, res) => {
+    const id = req.query.id;
+    if (id) {
+        var ideas = [];
+        var writers = await fetchAllUsersByDepartment(id);
+        console.log(writers);
+        for (let i = 0; i < writers.length; i++) {
+            var snapshots = await fetchAllMatchingDocuments(
+                "Idea",
+                "writer_id",
+                writers[i].id
+            );
+            snapshots.forEach((snapshot) => {
+                ideas.push({
+                    idea: Idea.fromJson(snapshot.data()),
+                    id: snapshot.id,
+                });
+            });
+        }
+        res.status(200).send(ideas);
+    } else {
+        res.status(400).json({ message: "No id was provided" });
     }
 });
 
