@@ -69,7 +69,11 @@ app.post("/login", async (req, res) => {
         });
     } else {
         var respond = await authorize(username, password);
-        updateLoginMetrics(device_type);
+
+        if (respond.code === 200) {
+            updateLoginMetrics(device_type);
+        }
+
         res.status(respond.code).json(respond);
     }
 });

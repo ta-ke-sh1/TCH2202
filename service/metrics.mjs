@@ -55,41 +55,45 @@ const updateLoginMetrics = async (device) => {
         return true;
     }
 
-    updateObj = metrics.data();
-    updateObj.unique_visit = parseInt(metrics.data().unique_visit) + 1;
-    switch (device) {
-        case "desktop":
-            updateObj.device_type = {
-                desktop: parseInt(metrics.data().device_type.desktop) + 1,
-                mobile: parseInt(metrics.data().device_type.mobile),
-                tablet: parseInt(metrics.data().device_type.tablet),
-            };
+    else {
+        updateObj = metrics.data();
+        updateObj.unique_visit = parseInt(metrics.data().unique_visit) + 1;
+        switch (device) {
+            case "desktop":
+                updateObj.device_type = {
+                    desktop: metrics.data().device_type.desktop ? parseInt(metrics.data().device_type.desktop) + 1 : 1,
+                    mobile: metrics.data().device_type.mobile ? parseInt(metrics.data().device_type.mobile) : 0,
+                    tablet: metrics.data().device_type.tablet ? parseInt(metrics.data().device_type.tablet) : 0,
+                };
 
-            break;
-        case "mobile":
-            updateObj.device_type = {
-                desktop: parseInt(metrics.data().device_type.desktop),
-                mobile: parseInt(metrics.data().device_type.mobile) + 1,
-                tablet: parseInt(metrics.data().device_type.tablet),
-            };
+                break;
+            case "mobile":
+                updateObj.device_type = {
+                    desktop: metrics.data().device_type.desktop ? parseInt(metrics.data().device_type.desktop) : 0,
+                    mobile: metrics.data().device_type.mobile ? parseInt(metrics.data().device_type.mobile) + 1 : 1,
+                    tablet: metrics.data().device_type.tablet ? parseInt(metrics.data().device_type.tablet) : 0,
+                };
 
-            break;
-        case "tablet":
-            updateObj.device_type = {
-                desktop: parseInt(metrics.data().device_type.desktop),
-                tablet: parseInt(metrics.data().device_type.tablet) + 1,
-                mobile: parseInt(metrics.data().device_type.mobile),
-            };
+                break;
+            case "tablet":
+                updateObj.device_type = {
+                    desktop: metrics.data().device_type.desktop ? parseInt(metrics.data().device_type.desktop) : 0,
+                    mobile: metrics.data().device_type.mobile ? parseInt(metrics.data().device_type.mobile) : 0,
+                    tablet: metrics.data().device_type.tablet ? parseInt(metrics.data().device_type.tablet) + 1 : 1,
+                };
 
-            break;
+                break;
+        }
+
+        await updateDocument(
+            "Metrics",
+            "d-" + Date.parse(getCurrentDateAsDBFormat()) / 1000,
+            updateObj
+        );
+        return true;
     }
 
-    await updateDocument(
-        "Metrics",
-        "d-" + Date.parse(getCurrentDateAsDBFormat()) / 1000,
-        updateObj
-    );
-    return true;
+
 };
 
 const updateDocumentMetrics = async (document) => {

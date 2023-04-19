@@ -189,13 +189,13 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/file", async (req, res) => {
-    var id = req.query.id;
+    var username = req.query.username;
     var fileName = req.query.fileName;
     var __dirname = path.resolve(path.dirname(""));
     res.set({
         "Content-Disposition": `attachment; filename='${fileName}'`,
     });
-    const file = `${__dirname}/assets/files/` + id + "/" + fileName;
+    const file = `${__dirname}/assets/files/` + username + "/" + fileName;
     res.download(file);
 });
 
