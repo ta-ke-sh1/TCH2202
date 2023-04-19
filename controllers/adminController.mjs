@@ -99,7 +99,6 @@ router.get('/popularTags', async (req, res) => {
 router.get('/dashboard', async (req, res) => {
     var limit = req.query.limit;
     var snapshots = await fetchDocumentWhereDocumentId('Metrics', limit, { isBefore: Date.parse(getCurrentDateAsDBFormat()) / 1000 })
-    console.log(snapshots);
     res.status(200).json(snapshots.reverse());
 });
 
@@ -133,18 +132,14 @@ router.post('/createThread', async (req, res) => {
 
 router.get("/createThreadReport", async (req, res) => {
     const id = req.query.id;
+    console.log(id)
     var thread = await fetchDocumentById('thread', id);
-    var currentDateTime = new Date();
     if (!thread) {
         res.status(300).send({
             message: 'Thread does not exist!'
         })
     }
-    else if (thread.data().endDate > currentDateTime.getTime() / 1000) {
-        res.status(300).send({
-            message: 'Not yet expired!'
-        });
-    } else {
+    else {
         const ideas = await fetchAllMatchingDocuments('Idea', 'thread', id);
         var dir = path.resolve() + "/summary_file/csv/";
 
@@ -152,15 +147,12 @@ router.get("/createThreadReport", async (req, res) => {
             fs.mkdirSync(dir);
         }
 
-        var fileName = dir + 'Thread Summary-' + id + ".csv";
+        var fileName = dir + 'Thread Summary-' + thread.data().name + ".csv";
         appendFileSync(fileName, "Writer Id\tApprover Id\tPost Date\tApproved Date\tCategory\tContent\tFile\tThread ID\tVisit Count\tStatus\tIs_anonymous\n");
         for (let i = 0; i < ideas.length; i++) {
             appendFileSync(fileName, Idea.fromJson(ideas[i].data()).toCSV());
         }
-        res.set({
-            'Content-Disposition': `attachment; filename='${fileName}'`,
-        });
-        const file = "summary_file/csv/Thread Summary-" + id + ".csv";
+        const file = "summary_file/csv/Thread Summary-" + thread.data().name + ".csv";
         res.status(200).download(file);
     }
 });
@@ -178,7 +170,7 @@ router.get("/approve", containsRole("Admin"), async (req, res) => {
     }
 });
 
-router.get("/zipDirectory", containsRole("Admin"), async (req, res) => {
+router.get("/zipDirectory", async (req, res) => {
     var _out =
         path.resolve() +
         "\\summary_file\\summary" +

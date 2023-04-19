@@ -43,7 +43,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.put("/", async (req, res) => {
+router.post("/edit", async (req, res) => {
     if (!req.body.id) {
         res.status(300).json({
             message: "No id was provided!",
@@ -56,6 +56,8 @@ router.put("/", async (req, res) => {
             description: req.body.description,
             name: req.body.name,
         };
+
+        console.log(updateObj)
 
         const respond = await updateDocument(
             collectionRef,

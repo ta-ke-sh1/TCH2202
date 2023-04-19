@@ -252,6 +252,20 @@ const fetchDocumentById = async (collectionRef, id) => {
     return null;
 };
 
+const addDocumentObject = async (collectionRef, object) => {
+    try {
+        const docRef = await addDoc(
+            collection(db, collectionRef),
+            object
+        );
+        console.log("Document written with ID: ", docRef.id);
+        return docRef.id;
+    } catch (e) {
+        console.error("Error adding document: ", e);
+        return "Error";
+    }
+};
+
 const addDocument = async (collectionRef, object) => {
     try {
         const docRef = await addDoc(
@@ -298,6 +312,7 @@ export {
     fetchAllContainingDocuments,
     fetchAllMatchingDocumentsWithinRange,
     fetchDocumentById,
+    addDocumentObject,
     addDocument,
     deleteDocument,
     updateDocument,

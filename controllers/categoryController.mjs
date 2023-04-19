@@ -5,7 +5,7 @@ import {
     fetchAllDocuments,
     fetchDocumentById,
     deleteDocument,
-    addDocument,
+    addDocumentObject
 } from "../service/firebaseHelper.mjs";
 
 import { getFirestore, setDoc, doc } from "firebase/firestore";
@@ -66,7 +66,7 @@ router.put("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
     const name = req.body.name;
-    await addDocument("Category", {
+    await addDocumentObject("Category", {
         idea: 0,
         name: name,
     });

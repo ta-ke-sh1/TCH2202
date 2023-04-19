@@ -5,6 +5,7 @@ import {
     addDocument,
     deleteDocument,
     updateDocument,
+    addDocumentObject,
 } from "../service/firebaseHelper.mjs";
 import { Department } from "../model/department.mjs";
 import * as Constants from "../utils/constants.mjs";
@@ -34,7 +35,8 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-    await addDocument(collection, {
+    console.log(req.body.name);
+    await addDocumentObject(collection, {
         name: req.body.name,
         emp_count: 0,
     });
