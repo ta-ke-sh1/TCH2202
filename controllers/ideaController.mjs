@@ -178,6 +178,42 @@ router.get("/file", async (req, res) => {
     res.download(file);
 });
 
+router.get("/sortByLike", async (req, res) => {
+    const thread = req.query.thread;
+    const asc = req.query.asc;
+    let ideas = [];
+
+    console.log("thread id: " + thread);
+
+    const docs = await fetchAllMatchingDocuments(
+        collectionRef,
+        "thread",
+        thread
+    );
+
+    console.log("thread id idea count: " + docs.length);
+
+    for (let i = 0; i < docs.length; i++) {
+        var idea = Idea.fromJson(docs[i].data());
+        var like = await fetchAllMatchingDocuments(
+            "Reaction",
+            "document",
+            docs[i].id
+        );
+        idea.id = docs[i].id;
+        idea.like_count = like.length;
+        ideas.push(idea);
+    }
+
+    ideas = ideas.sort((a, b) => {
+        return a.like_count - b.like_count;
+    });
+
+    console.log(ideas.length);
+
+    res.status(200).json({ ideas });
+});
+
 router.get("/sort", async (req, res) => {
     const thread = req.query.thread;
     const startDate = req.query.startDate;
