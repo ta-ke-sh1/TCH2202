@@ -91,14 +91,12 @@ const register = async (document) => {
 
 const authorize = async (username, password) => {
     var user = await isExists(username);
-
     if (!user) {
         return {
             code: 406,
             message: "User does not exists!",
         };
     }
-
     var u = User.fromJson(user.data());
     console.log(u);
     if (!bcrypt.compareSync(password, u.password)) {
@@ -107,7 +105,6 @@ const authorize = async (username, password) => {
             message: "Incorrect password!",
         };
     }
-
     var access_secret = process.env.JWT_SECRET_ACCESS;
     const accessToken = jwt.sign(
         {
@@ -119,7 +116,6 @@ const authorize = async (username, password) => {
         access_secret,
         { expiresIn: "1d" }
     );
-
     var refresh_secret = process.env.JWT_SECRET_REFRESH;
     const refreshToken = jwt.sign(
         {
@@ -127,8 +123,7 @@ const authorize = async (username, password) => {
         },
         refresh_secret,
         { expiresIn: "2d" }
-    );
-
+    )
     return {
         code: 200,
         accessToken: "Bearer " + accessToken,

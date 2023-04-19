@@ -30,7 +30,6 @@ const updateLoginMetrics = async (device) => {
                     mobile: 0,
                     tablet: 0,
                 };
-
                 break;
             case "mobile":
                 updateObj.device_type = {
