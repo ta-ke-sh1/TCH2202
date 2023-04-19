@@ -24,12 +24,13 @@ router.get("/", async (req, res) => {
         categories.push({
             id: snapshots[i].id,
             name: snapshots[i].data()["name"],
+            idea: snapshots[i].data()["idea"],
         });
     }
     res.status(200).json(categories);
 });
 
-router.delete("/", async (req, res) => {
+router.get("/delete", async (req, res) => {
     if (!req.query.id) {
         res.status(300).send({
             message: "No id was provided",
@@ -42,7 +43,6 @@ router.delete("/", async (req, res) => {
             });
         } else {
             const respond = await deleteDocument(collectionRef, req.query.id);
-            console.log("Comment deleted, ID: " + req.query.id);
             res.status(respond.code).send({
                 message: respond.message,
             });
@@ -50,7 +50,7 @@ router.delete("/", async (req, res) => {
     }
 });
 
-router.put("/", async (req, res) => {
+router.post("/edit", async (req, res) => {
     if (!req.body.id) {
         res.status(300).send({
             message: "No id was provided",

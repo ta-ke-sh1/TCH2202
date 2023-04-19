@@ -59,11 +59,11 @@ router.post("/edit", async (req, res) => {
 
         console.log(updateObj)
 
-        const respond = await updateDocument(
-            collectionRef,
-            req.body.id,
-            updateObj
-        );
+        // const respond = await updateDocument(
+        //     collectionRef,
+        //     req.body.id,
+        //     updateObj
+        // );
         res.status(200).json(respond);
     }
 });

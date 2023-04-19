@@ -44,7 +44,7 @@ router.post("/", async (req, res) => {
     console.log("Department added, ID: " + req.body.id);
 });
 
-router.put("/", async (req, res) => {
+router.post("/edit", async (req, res) => {
     if (!req.body.id) {
         res.status(300).json({
             message: "No id was provided!",
@@ -52,8 +52,10 @@ router.put("/", async (req, res) => {
     } else {
         const respond = await updateDocument(
             collection,
-            department.id,
-            department.toJson()
+            req.body.id,
+            {
+                name: req.body.name,
+            }
         );
         console.log("Department updated, ID: " + req.body.id);
         res.status(respond.code).send({
@@ -62,7 +64,7 @@ router.put("/", async (req, res) => {
     }
 });
 
-router.delete("/", async (req, res) => {
+router.get("/delete", async (req, res) => {
     if (!req.query.id) {
         res.status(300).json({
             message: "No id was provided!",
