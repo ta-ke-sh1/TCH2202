@@ -1,18 +1,18 @@
 export class Category {
-    constructor(id, name, count) {
+    constructor(id, name, idea) {
         this.id = id;
         this.name = name;
-        this.count = count;
+        this.idea=idea;
     }
 
     static fromJson(json, docId) {
-        return new Category(docId, json.name, json.count);
+        return new Category(docId, json.name, json.idea);
     }
 
     toJson() {
         return {
             name: this.name,
-            count: this.count,
+            idea:this.idea
         };
     }
 }

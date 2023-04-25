@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
     console.log(req.body.name);
     await addDocumentObject(collection, {
         name: req.body.name,
-        emp_count: 0,
+        // emp_count: 0,
     });
     console.log("New Department Added");
     console.log("Department added, ID: " + req.body.id);

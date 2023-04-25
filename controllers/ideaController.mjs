@@ -182,7 +182,10 @@ router.get("/", async (req, res) => {
         const ideas = [];
         var snapshots = await fetchAllDocuments(collectionRef);
         snapshots.forEach((snapshot) => {
-            ideas.push(Idea.fromJson(snapshot.data()));
+             var idea=Idea.fromJson(snapshot.data());
+             idea.id = snapshot.id,
+             ideas.push(idea);
+
         });
         res.status(200).send(ideas);
     }

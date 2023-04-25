@@ -87,7 +87,7 @@ router.post("/", upload.single("avatar"), async (req, res) => {
     });
 });
 
-router.put("/", upload.single("avatar"), async (req, res) => {
+router.post("/edit", upload.single("avatar"), async (req, res) => {
     if (!req.body.id) {
         res.status(300).json({
             message: "No id was provided!",
