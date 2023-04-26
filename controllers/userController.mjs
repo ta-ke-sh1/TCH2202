@@ -106,6 +106,7 @@ router.post("/edit", upload.single("avatar"), async (req, res) => {
                 fullName: !req.body.fullName ? user.data().fullName : req.body.fullName,
                 role: !req.body.role ? [user.data().role] : [req.body.role],
                 stat: !req.body.stat ? user.data().stat : req.body.stat,
+                email: !req.body.email ? user.data().email : req.body.email,
             };
 
             if (req.file) {
