@@ -176,7 +176,7 @@ router.get("/zipDirectory", async (req, res) => {
         "\\summary_file\\summary" +
         new Date().toJSON().slice(0, 10).replace(/-/g, "-") +
         ".zip";
-    var _in = path.resolve() + "\\assets\\files\\";
+    var _in = path.resolve() + "//assets//files";
     await zip(_in, _out);
     res.set({
         'Content-Disposition': `attachment; filename='${"\\summary_file\\summary" +

@@ -88,25 +88,24 @@ router.post("/", upload.single("avatar"), async (req, res) => {
 });
 
 router.post("/edit", upload.single("avatar"), async (req, res) => {
+    console.log(req.body);
     if (!req.body.id) {
         res.status(300).json({
             message: "No id was provided!",
         });
     } else {
-        var user = await fetchUserById(collectionRef, req.body.id);
-
+        var user = await fetchUserById( req.body.id);
+        console.log('User: ')
         if (!user) {
             res.status(300).send({
                 message: "User doesn't exists!",
             });
         } else {
             var updateObj = {
-                department_id: req.body.department_id,
-                fullName: req.body.fullName,
-                dob: req.body.dob,
-                role: req.body.role,
-                stat: req.body.stat,
-                email: req.body.email,
+                department_id: !req.body.department_id ? user.data().department_id : req.body.department_id,
+                fullName: !req.body.fullName ? user.data().fullName : req.body.fullName,
+                role: !req.body.role ? [user.data().role] : [req.body.role],
+                stat: !req.body.stat ? user.data().stat : req.body.stat,
             };
 
             if (req.file) {
@@ -115,15 +114,14 @@ router.post("/edit", upload.single("avatar"), async (req, res) => {
                 updateObj.avatar = ref(storage, "/avatar/" + filename);
             }
 
-            const respond = await setUser(
-                collectionRef,
+            const respond = await updateUser(
                 req.body.id,
                 updateObj
             );
             res.status(respond.code).send({
                 message: respond.message,
             });
-        }
+       }
     }
 });
 

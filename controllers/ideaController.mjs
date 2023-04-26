@@ -408,7 +408,7 @@ router.get("/accessed", async (req, res) => {
     }
 });
 
-router.put("/", async (req, res) => {
+router.post("/edit", async (req, res) => {
     var idea = new Idea(
         req.body.writer_id,
         req.body.approver_id,

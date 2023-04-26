@@ -8,6 +8,7 @@ import {
 } from "../service/firebaseHelper.mjs";
 
 import { Thread } from "../model/thread.mjs";
+import moment from "moment";
 
 const router = express.Router();
 const collectionRef = "thread";
@@ -18,7 +19,9 @@ router.get("/", async (req, res) => {
     if (id) {
         var snapshots = await fetchDocumentById(collectionRef, id);
         if (snapshots) {
-            res.status(200).send(snapshots.data());
+            var obj = snapshots.data();
+            obj.id = snapshots.id;
+            res.status(200).send(obj);
         } else {
             res.status(400).send({
                 success: false,
@@ -43,27 +46,28 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/edit", async (req, res) => {
+router.post("/edit/", async (req, res) => {
     if (!req.body.id) {
         res.status(300).json({
             message: "No id was provided!",
         });
     } else {
+        console.log(req.body.id)
         var updateObj = {
-            startDate: req.body.startDate,
-            endDate: req.body.endDate,
-            closedDate: req.body.closedDate,
+            startDate: moment(req.body.startDate).unix(),
+            endDate: moment(req.body.endDate).unix(),
+            closedDate: moment(req.body.closedDate).unix(),
             description: req.body.description,
             name: req.body.name,
         };
 
         console.log(updateObj)
 
-        // const respond = await updateDocument(
-        //     collectionRef,
-        //     req.body.id,
-        //     updateObj
-        // );
+        const respond = await updateDocument(
+            collectionRef,
+            req.body.id,
+            updateObj
+        );
         res.status(200).json(respond);
     }
 });
